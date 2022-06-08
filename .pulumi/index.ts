@@ -74,7 +74,7 @@ const mono_repo_example = new digitalocean.App("mono-repo-example", {
       {
         buildCommand: "npm run build",
         github: {
-          branch: "master",
+          branch: "main",
           deployOnPush: true,
           repo: "anthonyshew/pulumi-do",
         },
