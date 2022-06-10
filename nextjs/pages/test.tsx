@@ -3,14 +3,21 @@ import Head from "next/head";
 import { useState, useEffect } from "react";
 import styles from "../styles/Home.module.css";
 
-const Home: NextPage = () => {
-  const [data, setData] = useState(null);
-
+const useRequest = (path: string) => {
   useEffect(() => {
-    fetch(`https://api/test-route`)
+    fetch(path)
       .then((res) => res.json())
-      .then((res) => setData(res));
+      .then((res) => console.log(path));
   }, []);
+};
+
+const Home: NextPage = () => {
+  useRequest(`https://api/test-route`);
+  useRequest(`https://api/another-api`);
+  useRequest(`https://another-api/test-route`);
+  useRequest(`https://another-api/test-route`);
+  useRequest(`https://another-api`);
+  useRequest(`https://another-api/`);
 
   return (
     <div className={styles.container}>
@@ -21,7 +28,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        {data && <p>{JSON.stringify(data, null, 2)}</p>}
+        <p>Check the console.</p>
       </main>
     </div>
   );

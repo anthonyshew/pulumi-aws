@@ -39,6 +39,7 @@ const main = async () => {
           routes: [
             {
               path: "/another-api",
+              preservePathPrefix: true,
             },
           ],
           runCommand: "npm run start",
