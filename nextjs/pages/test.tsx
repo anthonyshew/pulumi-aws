@@ -12,11 +12,9 @@ const useRequest = (path: string) => {
 };
 
 const Home: NextPage = () => {
-  useRequest(`/another-api/test-route`);
-  useRequest(`/another-api`);
-  useRequest(`https://api/test-route`);
-  useRequest(`/api`);
+  // Works for nextjs routes
   useRequest(`/api/hello`);
+  useRequest(`/another-api/test-route`);
 
   return (
     <div className={styles.container}>

@@ -36,16 +36,16 @@ const main = async () => {
             deployOnPush: true,
             repo: "anthonyshew/pulumi-do",
           },
-          internalPorts: [8080],
+          httpPort: 8080,
           instanceSizeSlug: "basic-xxs",
           instanceCount: 1,
           name: "api",
-          // routes: [
-          //   {
-          //     path: "/another-api",
-          //     // preservePathPrefix: true,
-          //   },
-          // ],
+          routes: [
+            {
+              path: "/another-api",
+              preservePathPrefix: true,
+            },
+          ],
           runCommand: "npm run start",
           sourceDir: "/api",
         },
