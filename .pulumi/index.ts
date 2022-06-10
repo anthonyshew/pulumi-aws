@@ -35,6 +35,31 @@ const main = async () => {
           },
           httpPort: 8080,
           instanceSizeSlug: "basic-xxs",
+          name: "api",
+          routes: [
+            {
+              path: "/another-api",
+            },
+          ],
+          runCommand: "npm run start",
+          sourceDir: "/api",
+        },
+        {
+          alerts: [
+            {
+              operator: "GREATER_THAN",
+              rule: "CPU_UTILIZATION",
+              value: 75,
+              window: "FIVE_MINUTES",
+            },
+          ],
+          github: {
+            branch: "main",
+            deployOnPush: true,
+            repo: "anthonyshew/pulumi-do",
+          },
+          httpPort: 8080,
+          instanceSizeSlug: "basic-xxs",
           // logDestinations: [
           //   {
           //     name: "MyLogs",
@@ -51,24 +76,39 @@ const main = async () => {
           ],
           buildCommand: "npm run build",
           runCommand: "npm run start",
-          sourceDir: ".",
+          sourceDir: "/nextjs",
         },
       ],
     },
   });
 
-  const project = new digitalocean.Project("demo-project", {
+  const existingProject = await digitalocean.getProject({
     name: "demo-project",
-    description: "So described right now.",
-    environment: "development",
-    purpose: "To learn Pulumi.",
-    resources: [app.urn],
   });
+
+  let project;
+
+  if (!existingProject) {
+    project = new digitalocean.Project("demo-project", {
+      name: "demo-project",
+      description: "So described right now.",
+      environment: "development",
+      purpose: "To learn Pulumi.",
+      resources: [app.urn],
+    });
+  }
+
+  if (existingProject) {
+    return {
+      appLiveUrl: app.liveUrl,
+      message: `The app at ${app.liveUrl} was updated at ${app.updatedAt}. There was an existing DO project so we didnt create a new one.`,
+    };
+  }
 
   return {
     appLiveUrl: app.liveUrl,
-    updatedAt: project.updatedAt,
-    projectResources: project.resources,
+    updatedAt: project?.updatedAt ?? "not updated",
+    projectResources: project?.resources,
     message: `The app at ${app.liveUrl} was updated at ${app.updatedAt}.`,
   };
 };
