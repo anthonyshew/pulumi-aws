@@ -1,6 +1,9 @@
 import * as digitalocean from "@pulumi/digitalocean";
+import * as pulumi from "@pulumi/pulumi";
 
 const main = async () => {
+  const stack = pulumi.getStack();
+
   const app = new digitalocean.App("demo-example", {
     spec: {
       alerts: [
@@ -10,12 +13,12 @@ const main = async () => {
       ],
       name: "demo-example",
       domainNames: [
-        {
-          name: "trovabaseball.com",
-        },
-        {
-          name: "www.trovabaseball.com",
-        },
+        // {
+        //   name: "trovabaseball.com",
+        // },
+        // {
+        //   name: "www.trovabaseball.com",
+        // },
       ],
       region: digitalocean.Region.NYC3,
       services: [
@@ -35,6 +38,7 @@ const main = async () => {
           },
           internalPorts: [8080],
           instanceSizeSlug: "basic-xxs",
+          instanceCount: 1,
           name: "api",
           // routes: [
           //   {
