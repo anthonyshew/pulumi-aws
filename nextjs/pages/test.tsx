@@ -7,7 +7,7 @@ const Home: NextPage = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch(`http://api/test-route`)
+    fetch(`https://api/test-route`)
       .then((res) => res.json())
       .then((res) => setData(res));
   }, []);
