@@ -4,9 +4,9 @@ const main = async () => {
   const app = new digitalocean.App("demo-example", {
     spec: {
       alerts: [
-        {
-          rule: "DEPLOYMENT_FAILED",
-        },
+        // {
+        // rule: "DEPLOYMENT_FAILED",
+        // },
       ],
       name: "demo-example",
       domainNames: [
@@ -33,7 +33,7 @@ const main = async () => {
             deployOnPush: true,
             repo: "anthonyshew/pulumi-do",
           },
-          internalPorts: [5000],
+          httpPort: 5000,
           instanceSizeSlug: "basic-xxs",
           name: "api",
           routes: [

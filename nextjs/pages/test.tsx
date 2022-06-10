@@ -19,6 +19,13 @@ const Home: NextPage = () => {
   useRequest(`https://another-api`);
   useRequest(`https://another-api/`);
 
+  useRequest(`/api/test-route`);
+  useRequest(`/api/another-api`);
+  useRequest(`/another-api/test-route`);
+  useRequest(`/another-api/test-route`);
+  useRequest(`/another-api`);
+  useRequest(`/another-api/`);
+
   useRequest(`https://api/test-route:5000`);
   useRequest(`https://api/another-api:5000`);
   useRequest(`https://another-api/test-route:5000`);
