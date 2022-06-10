@@ -1,18 +1,6 @@
 import * as digitalocean from "@pulumi/digitalocean";
-const domainName = "trovabaseball.com";
 
 const main = async () => {
-  // const existingDomain = await digitalocean.getDomain({ name: domainName });
-  // let newDomain;
-
-  // if (!existingDomain) {
-  //   newDomain = new digitalocean.Domain("demo-sample-domain", {
-  //     name: domainName,
-  //   });
-  // }
-
-  // const domain = existingDomain ?? newDomain;
-
   const app = new digitalocean.App("demo-example", {
     spec: {
       alerts: [
@@ -30,8 +18,6 @@ const main = async () => {
         },
       ],
       region: digitalocean.Region.NYC3,
-      // Build a Go project in the api/ directory that listens on port 3000
-      // and serves it at https://foo.example.com/api
       services: [
         {
           alerts: [
@@ -68,45 +54,8 @@ const main = async () => {
           sourceDir: ".",
         },
       ],
-      // Builds a static site in the project's root directory
-      // and serves it at https://foo.example.com/
-      // staticSites: [
-      //   {
-      //     buildCommand: "npm run build",
-      //     github: {
-      //       branch: "main",
-      //       deployOnPush: true,
-      //       repo: "anthonyshew/pulumi-do",
-      //     },
-      //     name: "web",
-      //     routes: [
-      //       {
-      //         path: "/",
-      //       },
-      //     ],
-      //   },
-      // ],
     },
   });
-
-  // const www = "www.";
-
-  // const existingRecord = await digitalocean.getRecord({
-  //   domain: domain?.name ?? newDomain?.name,
-  //   name: www,
-  // });
-
-  // let newRecord;
-  // if (existingRecord) {
-  //   newRecord = new digitalocean.DnsRecord("demo-domain-record", {
-  //     type: "CNAME",
-  //     domain: domain?.name ?? newDomain?.name,
-  //     value: "@",
-  //     name: www,
-  //   });
-  // }
-
-  // const dnsRecord = existingRecord ?? newRecord;
 
   const project = new digitalocean.Project("demo-project", {
     name: "demo-project",
@@ -117,7 +66,6 @@ const main = async () => {
   });
 
   return {
-    // dnsRecordExport: dnsRecord.name,
     appLiveUrl: app.liveUrl,
     updatedAt: project.updatedAt,
     projectResources: project.resources,
