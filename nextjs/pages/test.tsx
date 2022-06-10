@@ -19,6 +19,13 @@ const Home: NextPage = () => {
   useRequest(`https://another-api`);
   useRequest(`https://another-api/`);
 
+  useRequest(`https://api/test-route:5000`);
+  useRequest(`https://api/another-api:5000`);
+  useRequest(`https://another-api/test-route:5000`);
+  useRequest(`https://another-api/test-route:5000`);
+  useRequest(`https://another-api:5000`);
+  useRequest(`https://another-api/:5000`);
+
   return (
     <div className={styles.container}>
       <Head>

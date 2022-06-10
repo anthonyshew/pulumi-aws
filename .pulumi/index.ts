@@ -33,7 +33,7 @@ const main = async () => {
             deployOnPush: true,
             repo: "anthonyshew/pulumi-do",
           },
-          httpPort: 8080,
+          internalPorts: [5000],
           instanceSizeSlug: "basic-xxs",
           name: "api",
           routes: [
