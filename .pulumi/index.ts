@@ -33,15 +33,15 @@ const main = async () => {
             deployOnPush: true,
             repo: "anthonyshew/pulumi-do",
           },
-          httpPort: 5000,
+          internalPorts: [],
           instanceSizeSlug: "basic-xxs",
           name: "api",
-          routes: [
-            {
-              path: "/another-api",
-              preservePathPrefix: true,
-            },
-          ],
+          // routes: [
+          //   {
+          //     path: "/another-api",
+          //     // preservePathPrefix: true,
+          //   },
+          // ],
           runCommand: "npm run start",
           sourceDir: "/api",
         },
@@ -110,7 +110,9 @@ const main = async () => {
     appLiveUrl: app.liveUrl,
     updatedAt: project?.updatedAt ?? "not updated",
     projectResources: project?.resources,
-    message: `The app at ${app.liveUrl} was updated at ${app.updatedAt}.`,
+    message: `The app at ${app.liveUrl.apply(
+      (v) => `${v}`
+    )} was updated at ${app.updatedAt.apply((v) => `${v}`)}.`,
   };
 };
 
