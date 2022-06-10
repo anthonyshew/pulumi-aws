@@ -33,7 +33,7 @@ const main = async () => {
             deployOnPush: true,
             repo: "anthonyshew/pulumi-do",
           },
-          internalPorts: [],
+          internalPorts: [8080],
           instanceSizeSlug: "basic-xxs",
           name: "api",
           // routes: [
@@ -99,27 +99,27 @@ const main = async () => {
     });
   }
 
-  if (existingProject) {
-    return {
-      appLiveUrl: app.liveUrl,
-      message: `The app at ${app.liveUrl} was updated at ${app.updatedAt}. There was an existing DO project so we didnt create a new one.`,
-    };
-  }
+  // if (existingProject) {
+  //   return {
+  //     appLiveUrl: app.liveUrl,
+  //     message: `The app at ${app.liveUrl} was updated at ${app.updatedAt}. There was an existing DO project so we didnt create a new one.`,
+  //   };
+  // }
 
-  return {
-    appLiveUrl: app.liveUrl,
-    updatedAt: project?.updatedAt ?? "not updated",
-    projectResources: project?.resources,
-    message: `The app at ${app.liveUrl.apply(
-      (v) => `${v}`
-    )} was updated at ${app.updatedAt.apply((v) => `${v}`)}.`,
-  };
+  // return {
+  //   appLiveUrl: app.liveUrl,
+  //   updatedAt: project?.updatedAt ?? "not updated",
+  //   projectResources: project?.resources,
+  //   message: `The app at ${app.liveUrl.apply(
+  //     (v) => `${v}`
+  //   )} was updated at ${app.updatedAt.apply((v) => `${v}`)}.`,
+  // };
 };
 
 const mainPromise = main();
 mainPromise.catch((err) => console.error(err));
 
-export const halp = mainPromise.then((res) => res.message);
+// export const halp = mainPromise.then((res) => res.message);
 //  export const   appLiveUrl = app.liveUrl
 //  export const   updatedAt = project.updatedAt
 //  export const   projectResources = project.resources
