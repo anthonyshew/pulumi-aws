@@ -105,31 +105,31 @@ const main = async () => {
           sourceDir: "/nextjs",
         },
       ],
-      jobs: [
-        {
-          name: "migrate-db",
-          kind: "POST_DEPLOY",
-          runCommand: "prisma migrate deploy",
-          sourceDir: ".",
-          github: {
-            branch: "main",
-            deployOnPush: false,
-            repo: "anthonyshew/pulumi-do",
-          },
-          envs: [
-            {
-              key: "DATABASE_URL",
-              scope: "RUN_AND_BUILD_TIME",
-              value: "${db.DATABASE_URL}",
-            },
-            {
-              key: "CA_CERT",
-              scope: "RUN_AND_BUILD_TIME",
-              value: "${db.CA_CERT}",
-            },
-          ],
-        },
-      ],
+      // jobs: [
+      //   {
+      //     name: "migrate-db",
+      //     kind: "POST_DEPLOY",
+      //     runCommand: "prisma migrate deploy",
+      //     sourceDir: ".",
+      //     github: {
+      //       branch: "main",
+      //       deployOnPush: false,
+      //       repo: "anthonyshew/pulumi-do",
+      //     },
+      //     envs: [
+      //       {
+      //         key: "DATABASE_URL",
+      //         scope: "RUN_AND_BUILD_TIME",
+      //         value: "${db.DATABASE_URL}",
+      //       },
+      //       {
+      //         key: "CA_CERT",
+      //         scope: "RUN_AND_BUILD_TIME",
+      //         value: "${db.CA_CERT}",
+      //       },
+      //     ],
+      //   },
+      // ],
       databases: [
         {
           name: db.name,
