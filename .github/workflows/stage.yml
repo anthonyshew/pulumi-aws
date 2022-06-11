@@ -30,7 +30,6 @@ jobs:
           work-dir: ./.pulumi
           command: up
           stack-name: stage
-          refresh: true
           commment-on-pr: true
           github-token: ${{secrets.GITHUB_TOKEN}}
         env:
