@@ -9,18 +9,18 @@ const main = async () => {
   const databaseSize = config.get("databaseSize") || "db-s-1vcpu-1gb";
   const testSecret = config.requireSecret("NEXT_PUBLIC_TEST_SECRET");
 
-  // const cluster = new digitalocean.DatabaseCluster("cluster", {
-  //   engine: "PG",
-  //   version: "13",
-  //   region,
-  //   size: databaseSize,
-  //   nodeCount: 1,
-  // });
+  const dbCluster = new digitalocean.DatabaseCluster("cluster", {
+    engine: "PG",
+    version: "13",
+    region,
+    size: databaseSize,
+    nodeCount: 1,
+  });
 
-  // const db = new digitalocean.DatabaseDb("db", {
-  //   name: "db",
-  //   clusterId: cluster.id,
-  // });
+  const db = new digitalocean.DatabaseDb("db", {
+    name: "db",
+    clusterId: dbCluster.id,
+  });
 
   const app = new digitalocean.App("demo-example", {
     spec: {
@@ -109,6 +109,13 @@ const main = async () => {
           buildCommand: "npm run build",
           runCommand: "npm run start",
           sourceDir: "/nextjs",
+          envs: [
+            {
+              key: "NEXT_PUBLIC_TEST_SECRET",
+              scope: "RUN_AND_BUILD_TIME",
+              value: testSecret,
+            },
+          ],
         },
       ],
       // jobs: [
@@ -146,10 +153,10 @@ const main = async () => {
       // ],
       databases: [
         {
-          name: "db",
+          name: db.name,
           production: false,
-          engine: "PG",
-          clusterName: "cluster",
+          engine: dbCluster.engine.apply((engine) => engine.toUpperCase()),
+          clusterName: dbCluster.name,
         },
       ],
     },
