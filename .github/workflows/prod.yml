@@ -3,7 +3,7 @@ name: Deploy Prod (and run E2E?)
 on:
   push:
     branches:
-      - stage
+      - main
 
 jobs:
   create-stage:
