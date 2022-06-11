@@ -16,6 +16,7 @@ const Home: NextPage = ({ date }: any) => {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
           <p>Its {date}.</p>
+          <p>The secret is {process.env.NEXT_PUBLIC_TEST_SECRET}</p>
         </h1>
 
         <p className={styles.description}>

@@ -1,0 +1,49 @@
+name: Deploy Prod (and run E2E?)
+
+on:
+  push:
+    branches:
+      - stage
+
+jobs:
+  create-stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      - name: Install pulumi dependencies
+        working-directory: .pulumi
+        run: npm install
+
+      - name: Create resources
+        uses: pulumi/actions@v3
+        with:
+          work-dir: ./.pulumi
+          command: up
+          stack-name: prod
+          refresh: true
+          commment-on-pr: true
+          github-token: ${{secrets.GITHUB_TOKEN}}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+
+  # e2e:
+  #   concurrency:
+  #     group: ${{ github.ref }}
+  #     cancel-in-progress: true
+  #   needs: deploy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Cypress run
+  #       uses: cypress-io/github-action@v2
+  #       with:
+  #         working-directory: ./lib/e2e
+  #         config-file: config.ci.json

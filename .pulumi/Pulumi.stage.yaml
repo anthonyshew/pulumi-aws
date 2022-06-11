@@ -1,3 +1,5 @@
 config:
+  practice:NEXT_PUBLIC_TEST_SECRET:
+    secure: AAABAKv9wvQS5qIO+EsPxi0coHd5dRi3A0tz1rz+uzayXGjLlwq4LzxHIg==
   practice:databaseSize: db-s-1vcpu-1gb
   practice:region: nyc1

@@ -35,7 +35,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          DIGITALOCEAN_TOKEN: ${{secrets.DIGITALOCEAN_TOKEN}}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
 
   # e2e:
   #   concurrency:

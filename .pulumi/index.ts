@@ -7,6 +7,7 @@ const main = async () => {
   const region = config.get("region") || "nyc1";
   const instanceSizeSlug = config.get("instanceSizeSlug") || "basic-xxs";
   const databaseSize = config.get("databaseSize") || "db-s-1vcpu-1gb";
+  const testSecret = config.requireSecret("NEXT_PUBLIC_TEST_SECRET");
 
   const cluster = new digitalocean.DatabaseCluster("cluster", {
     engine: "PG",
@@ -66,6 +67,11 @@ const main = async () => {
           runCommand: "npm run start",
           sourceDir: "/api",
           envs: [
+            {
+              key: "NEXT_PUBLIC_TEST_SECRET",
+              scope: "RUN_AND_BUILD_TIME",
+              value: testSecret,
+            },
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
