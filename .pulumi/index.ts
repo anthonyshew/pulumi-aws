@@ -9,18 +9,18 @@ const main = async () => {
   const databaseSize = config.get("databaseSize") || "db-s-1vcpu-1gb";
   const testSecret = config.requireSecret("NEXT_PUBLIC_TEST_SECRET");
 
-  const cluster = new digitalocean.DatabaseCluster("cluster", {
-    engine: "PG",
-    version: "13",
-    region,
-    size: databaseSize,
-    nodeCount: 1,
-  });
+  // const cluster = new digitalocean.DatabaseCluster("cluster", {
+  //   engine: "PG",
+  //   version: "13",
+  //   region,
+  //   size: databaseSize,
+  //   nodeCount: 1,
+  // });
 
-  const db = new digitalocean.DatabaseDb("db", {
-    name: "db",
-    clusterId: cluster.id,
-  });
+  // const db = new digitalocean.DatabaseDb("db", {
+  //   name: "db",
+  //   clusterId: cluster.id,
+  // });
 
   const app = new digitalocean.App("demo-example", {
     spec: {
@@ -50,7 +50,7 @@ const main = async () => {
             },
           ],
           github: {
-            branch: "main",
+            branch: stack === "stage" ? "stage" : "main",
             deployOnPush: false,
             repo: "anthonyshew/pulumi-do",
           },
@@ -94,7 +94,7 @@ const main = async () => {
             },
           ],
           github: {
-            branch: "main",
+            branch: stack === "stage" ? "stage" : "main",
             deployOnPush: false,
             repo: "anthonyshew/pulumi-do",
           },
@@ -136,12 +136,20 @@ const main = async () => {
       //     ],
       //   },
       // ],
+      // databases: [
+      //   {
+      //     name: db.name,
+      //     production: false,
+      //     engine: cluster.engine.apply((engine) => engine.toUpperCase()),
+      //     clusterName: cluster.name,
+      //   },
+      // ],
       databases: [
         {
-          name: db.name,
+          name: "db",
           production: false,
-          engine: cluster.engine.apply((engine) => engine.toUpperCase()),
-          clusterName: cluster.name,
+          engine: "PG",
+          clusterName: "cluster",
         },
       ],
     },
