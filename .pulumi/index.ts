@@ -3,6 +3,23 @@ import * as pulumi from "@pulumi/pulumi";
 
 const main = async () => {
   const stack = pulumi.getStack();
+  const config = new pulumi.Config();
+  const region = config.get("region") || "nyc1";
+  const instanceSizeSlug = config.get("instanceSizeSlug") || "basic-xxs";
+  const databaseSize = config.get("databaseSize") || "db-s-1vcpu-1gb";
+
+  const cluster = new digitalocean.DatabaseCluster("cluster", {
+    engine: "PG",
+    version: "13",
+    region,
+    size: databaseSize,
+    nodeCount: 1,
+  });
+
+  const db = new digitalocean.DatabaseDb("db", {
+    name: "db",
+    clusterId: cluster.id,
+  });
 
   const app = new digitalocean.App("demo-example", {
     spec: {
@@ -20,7 +37,7 @@ const main = async () => {
         //   name: "www.trovabaseball.com",
         // },
       ],
-      region: digitalocean.Region.NYC3,
+      region,
       services: [
         {
           alerts: [
@@ -33,21 +50,33 @@ const main = async () => {
           ],
           github: {
             branch: "main",
-            deployOnPush: true,
+            deployOnPush: false,
             repo: "anthonyshew/pulumi-do",
           },
           httpPort: 8080,
-          instanceSizeSlug: "basic-xxs",
+          instanceSizeSlug,
           instanceCount: 1,
           name: "api",
           routes: [
             {
               path: "/another-api",
-              preservePathPrefix: true,
+              // preservePathPrefix: true,
             },
           ],
           runCommand: "npm run start",
           sourceDir: "/api",
+          envs: [
+            {
+              key: "DATABASE_URL",
+              scope: "RUN_AND_BUILD_TIME",
+              value: "${db.DATABASE_URL}",
+            },
+            {
+              key: "CA_CERT",
+              scope: "RUN_AND_BUILD_TIME",
+              value: "${db.CA_CERT}",
+            },
+          ],
         },
         {
           alerts: [
@@ -60,19 +89,11 @@ const main = async () => {
           ],
           github: {
             branch: "main",
-            deployOnPush: true,
+            deployOnPush: false,
             repo: "anthonyshew/pulumi-do",
           },
           httpPort: 8080,
-          instanceSizeSlug: "basic-xxs",
-          // logDestinations: [
-          //   {
-          //     name: "MyLogs",
-          //     papertrail: {
-          //       endpoint: "syslog+tls://example.com:12345",
-          //     },
-          //   },
-          // ],
+          instanceSizeSlug,
           name: "nextjs",
           routes: [
             {
@@ -84,24 +105,57 @@ const main = async () => {
           sourceDir: "/nextjs",
         },
       ],
+      jobs: [
+        {
+          name: "migrate-db",
+          kind: "POST_DEPLOY",
+          runCommand: "prisma migrate deploy",
+          sourceDir: ".",
+          github: {
+            branch: "main",
+            deployOnPush: false,
+            repo: "anthonyshew/pulumi-do",
+          },
+          envs: [
+            {
+              key: "DATABASE_URL",
+              scope: "RUN_AND_BUILD_TIME",
+              value: "${db.DATABASE_URL}",
+            },
+            {
+              key: "CA_CERT",
+              scope: "RUN_AND_BUILD_TIME",
+              value: "${db.CA_CERT}",
+            },
+          ],
+        },
+      ],
+      databases: [
+        {
+          name: db.name,
+          production: false,
+          engine: cluster.engine.apply((engine) => engine.toUpperCase()),
+          clusterName: cluster.name,
+        },
+      ],
     },
   });
 
-  const existingProject = await digitalocean.getProject({
-    name: "demo-project",
-  });
+  // const existingProject = await digitalocean.getProject({
+  //   name: "demo-project",
+  // });
 
-  let project;
+  // let project;
 
-  if (!existingProject) {
-    project = new digitalocean.Project("demo-project", {
-      name: "demo-project",
-      description: "So described right now.",
-      environment: "development",
-      purpose: "To learn Pulumi.",
-      resources: [app.urn],
-    });
-  }
+  // if (!existingProject) {
+  //   project = new digitalocean.Project("demo-project", {
+  //     name: "demo-project",
+  //     description: "So described right now.",
+  //     environment: "development",
+  //     purpose: "To learn Pulumi.",
+  //     resources: [app.urn, cluster.clusterUrn],
+  //   });
+  // }
 
   // if (existingProject) {
   //   return {
@@ -110,21 +164,14 @@ const main = async () => {
   //   };
   // }
 
-  // return {
-  //   appLiveUrl: app.liveUrl,
-  //   updatedAt: project?.updatedAt ?? "not updated",
-  //   projectResources: project?.resources,
-  //   message: `The app at ${app.liveUrl.apply(
-  //     (v) => `${v}`
-  //   )} was updated at ${app.updatedAt.apply((v) => `${v}`)}.`,
-  // };
+  return {
+    stack,
+    liveUrl: app.liveUrl,
+  };
 };
 
 const mainPromise = main();
 mainPromise.catch((err) => console.error(err));
 
-// export const halp = mainPromise.then((res) => res.message);
-//  export const   appLiveUrl = app.liveUrl
-//  export const   updatedAt = project.updatedAt
-//  export const   projectResources = project.resources
-//  export const message = `The app at ${app.liveUrl} was updated at ${app.updatedAt}.`,
+export const stackDeployed = mainPromise.then((res) => res.stack);
+export const liveUrl = mainPromise.then((res) => res.liveUrl);

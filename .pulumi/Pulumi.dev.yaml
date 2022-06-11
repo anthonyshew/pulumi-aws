@@ -1,1 +1,3 @@
 config:
+  practice:databaseSize: db-s-1vcpu-1gb
+  practice:region: nyc1
