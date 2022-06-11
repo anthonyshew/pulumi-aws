@@ -51,7 +51,7 @@ const main = async () => {
           ],
           github: {
             branch: stack === "stage" ? "stage" : "main",
-            deployOnPush: false,
+            deployOnPush: true,
             repo: "anthonyshew/pulumi-do",
           },
           httpPort: 8080,
@@ -95,7 +95,7 @@ const main = async () => {
           ],
           github: {
             branch: stack === "stage" ? "stage" : "main",
-            deployOnPush: false,
+            deployOnPush: true,
             repo: "anthonyshew/pulumi-do",
           },
           httpPort: 8080,
