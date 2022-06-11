@@ -15,12 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Node
+      - name: Install pulumi dependencies
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
 
       - name: Install pulumi dependencies
+        working-directory: .pulumi
+        run: npm install
+
+      - name: Create resources
         uses: pulumi/actions@v3
         with:
           work-dir: ./.pulumi
