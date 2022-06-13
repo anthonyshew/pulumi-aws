@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 const DbCall = ({ allUsers }: { allUsers: any[] }) => {
   const makeNew = () => {
@@ -27,5 +27,6 @@ export const getStaticProps = async () => {
     props: {
       allUsers: process.env.DATABASE_URL,
     },
+    revalidate: 5,
   };
 };
