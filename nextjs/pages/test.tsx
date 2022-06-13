@@ -14,6 +14,8 @@ const useRequest = (path: string) => {
 const Home: NextPage = () => {
   // Works for nextjs routes
   useRequest(`/api/hello`);
+  // Works for the API container
+  // The base ("/another-api") of this route would have to change if you changed the app spec for it.
   useRequest(`/another-api/test-route`);
 
   return (
