@@ -75,12 +75,12 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              value: `${db.name.apply((v) => `${v}`)}.\${DATABASE_URL}`,
+              value: db.name.apply((v) => `${v}.\${DATABASE_URL}`),
             },
             {
               key: "CA_CERT",
               scope: "RUN_AND_BUILD_TIME",
-              value: `${db.name.apply((v) => `${v}`)}.\${CA_CERT}`,
+              value: db.name.apply((v) => `${v}.\${CA_CERT}`),
             },
           ],
         },
@@ -118,12 +118,12 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              value: `${db.name.apply((v) => `${v}`)}.\${DATABASE_URL}`,
+              value: db.name.apply((v) => `${v}.\${DATABASE_URL}`),
             },
             {
               key: "CA_CERT",
               scope: "RUN_AND_BUILD_TIME",
-              value: `${db.name.apply((v) => `${v}`)}.\${CA_CERT}`,
+              value: db.name.apply((v) => `${v}.\${CA_CERT}`),
             },
           ],
         },
