@@ -17,4 +17,5 @@
 
 Gotchas:
 
-- Changing infrastructure and app code on the same commit will not deploy app code (I think?).
+- You CANNOT pre-render nextjs using this workflow. This is because you would have to migrate the production database while the previous version of the app is still out. Realistically, you need a database clone or something to use for a builder database and then promote it to production. This is outside of teh capabilities in this workflow.
+  - Instead, any pre-rendering that we have will not be conducted at build time. Use ISR and getServerSideProps to achieve this.
