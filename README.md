@@ -14,3 +14,7 @@
 11. Pulumi destroys stage resources. (GHA) (can be easily removed if needed)
 12. E2Es run? (GHA)
 13. Manual verification of production. (manual)
+
+Gotchas:
+
+- Changing infrastructure and app code on the same commit will not deploy app code (I think?).

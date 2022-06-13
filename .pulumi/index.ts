@@ -56,7 +56,7 @@ const main = async () => {
           },
           httpPort: 8080,
           instanceSizeSlug,
-          instanceCount: 1,
+          instanceCount: 2,
           name: "api",
           routes: [
             {
