@@ -118,39 +118,31 @@ const main = async () => {
           ],
         },
       ],
-      // jobs: [
-      //   {
-      //     name: "migrate-db",
-      //     kind: "POST_DEPLOY",
-      //     runCommand: "prisma migrate deploy",
-      //     sourceDir: ".",
-      //     github: {
-      //       branch: "main",
-      //       deployOnPush: false,
-      //       repo: "anthonyshew/pulumi-do",
-      //     },
-      //     envs: [
-      //       {
-      //         key: "DATABASE_URL",
-      //         scope: "RUN_AND_BUILD_TIME",
-      //         value: "${db.DATABASE_URL}",
-      //       },
-      //       {
-      //         key: "CA_CERT",
-      //         scope: "RUN_AND_BUILD_TIME",
-      //         value: "${db.CA_CERT}",
-      //       },
-      //     ],
-      //   },
-      // ],
-      // databases: [
-      //   {
-      //     name: db.name,
-      //     production: false,
-      //     engine: cluster.engine.apply((engine) => engine.toUpperCase()),
-      //     clusterName: cluster.name,
-      //   },
-      // ],
+      jobs: [
+        {
+          name: "migrate-db",
+          kind: "POST_DEPLOY",
+          runCommand: "yarn migrate-db",
+          sourceDir: "/nextjs",
+          github: {
+            branch: "main",
+            deployOnPush: false,
+            repo: "anthonyshew/pulumi-do",
+          },
+          envs: [
+            {
+              key: "DATABASE_URL",
+              scope: "RUN_AND_BUILD_TIME",
+              value: "${db.DATABASE_URL}",
+            },
+            {
+              key: "CA_CERT",
+              scope: "RUN_AND_BUILD_TIME",
+              value: "${db.CA_CERT}",
+            },
+          ],
+        },
+      ],
       databases: [
         {
           name: db.name,

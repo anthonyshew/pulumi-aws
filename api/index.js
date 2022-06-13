@@ -1,16 +1,33 @@
+import {PrismaClient} from '@prisma/client'
+
+const prisma = new PrismaClient()
+
 var express = require("express");
 var app = express();
 
 app.get("/", (req, res) => {
-  res.send("ping pong!");
+  return res.send("ping pong!");
 });
 
 app.get("/test-route", (req, res, next) => {
-  res.json(["Tony", "Lisa", "Michael", "Ginger", "Food"]);
+  return res.json(["Tony", "Lisa", "Michael", "Ginger", "Food"]);
 });
 
+app.post('/write-new-user', (req, res) => {
+  const newUser = await prisma.user.create({
+    data: {
+      email: "test@test.com",
+      name: "test",
+      password: "plaintextomg"
+    }
+  })
+
+  return res.json(newUser)
+})
+
+
 app.get("/secret", (req, res, next) => {
-  res.json({ secret: process.env.NEXT_PUBLIC_TEST_SECRET });
+  return res.json({ secret: process.env.NEXT_PUBLIC_TEST_SECRET });
 });
 
 app.listen(8080, () => {
