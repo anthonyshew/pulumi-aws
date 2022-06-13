@@ -75,12 +75,12 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              value: "${db.DATABASE_URL}",
+              value: `${db.name}.\${DATABASE_URL}`,
             },
             {
               key: "CA_CERT",
               scope: "RUN_AND_BUILD_TIME",
-              value: "${db.CA_CERT}",
+              value: `${db.name}.\${db.CA_CERT}`,
             },
           ],
         },
