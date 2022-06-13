@@ -56,11 +56,11 @@ const main = async () => {
           },
           httpPort: 8080,
           instanceSizeSlug,
-          instanceCount: 2,
+          instanceCount: 1,
           name: "api",
           routes: [
             {
-              path: "/another-api",
+              path: "/test-api",
               // preservePathPrefix: true,
             },
           ],
