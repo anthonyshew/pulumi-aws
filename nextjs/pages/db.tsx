@@ -1,6 +1,6 @@
-// import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 const DbCall = ({ allUsers }: { allUsers: any[] }) => {
   const makeNew = () => {
@@ -13,7 +13,7 @@ const DbCall = ({ allUsers }: { allUsers: any[] }) => {
     <>
       <button onClick={() => makeNew()}>tryMakeNew</button>
       <p>{allUsers}</p>
-      {/* <pre>{JSON.stringify(allUsers, null, 2)}</pre> */}
+      <pre>{JSON.stringify(allUsers, null, 2)}</pre>
     </>
   );
 };
@@ -21,7 +21,7 @@ const DbCall = ({ allUsers }: { allUsers: any[] }) => {
 export default DbCall;
 
 export const getStaticProps = async () => {
-  // const allUsers = await prisma.user.findMany();
+  const allUsers = await prisma.user.findMany();
   console.log(process.env);
   return {
     props: {

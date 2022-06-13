@@ -80,7 +80,7 @@ const main = async () => {
             {
               key: "CA_CERT",
               scope: "RUN_AND_BUILD_TIME",
-              value: `${db.name}.\${db.CA_CERT}`,
+              value: `${db.name}.\${CA_CERT}`,
             },
           ],
         },
@@ -114,6 +114,16 @@ const main = async () => {
               key: "NEXT_PUBLIC_TEST_SECRET",
               scope: "RUN_AND_BUILD_TIME",
               value: testSecret,
+            },
+            {
+              key: "DATABASE_URL",
+              scope: "RUN_AND_BUILD_TIME",
+              value: `${db.name}.\${DATABASE_URL}`,
+            },
+            {
+              key: "CA_CERT",
+              scope: "RUN_AND_BUILD_TIME",
+              value: `${db.name}.\${CA_CERT}`,
             },
           ],
         },
