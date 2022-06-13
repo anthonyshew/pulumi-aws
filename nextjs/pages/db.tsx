@@ -22,6 +22,7 @@ export default DbCall;
 
 export const getStaticProps = async () => {
   // const allUsers = await prisma.user.findMany();
+  console.log(process.env);
   return {
     props: {
       allUsers: process.env.DATABASE_URL,
