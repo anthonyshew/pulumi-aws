@@ -1,6 +1,9 @@
-FROM postgres:latest
+FROM postgres:alpine
+
+COPY migration.sql /docker-entrypoint-initdb.d/migration.sql
+
 ENV POSTGRES_PASSWORD postgresPassword
 ENV POSTGRES_USER postgresUser
+ENV POSTGRES_DB prisma
 
 EXPOSE 5432
-EXPOSE 8080

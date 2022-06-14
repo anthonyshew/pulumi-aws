@@ -62,7 +62,8 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              value: "postgres://postgresUser:postgresPassword@:8080/postgres",
+              value:
+                "postgres://postgresUser:postgresPassword@0.0.0.0:8080/prisma",
             },
           ],
         },
@@ -100,7 +101,8 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              value: "postgres://postgresUser:postgresPassword@:8080/postgres",
+              value:
+                "postgres://postgresUser:postgresPassword@0.0.0.0:8080/prisma",
             },
           ],
         },
