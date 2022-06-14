@@ -6,23 +6,8 @@ const main = async () => {
   const config = new pulumi.Config();
   const region = config.get("region") || "nyc1";
   const instanceSizeSlug = config.get("instanceSizeSlug") || "basic-xxs";
-  const databaseSize = config.get("databaseSize") || "db-s-1vcpu-1gb";
   const testSecret = config.requireSecret("NEXT_PUBLIC_TEST_SECRET");
-
-  const dbCluster = new digitalocean.DatabaseCluster("cluster", {
-    engine: "PG",
-    version: "13",
-    region,
-    size: databaseSize,
-    nodeCount: 1,
-  });
-
-  const db = new digitalocean.DatabaseDb("db", {
-    name: "db",
-    clusterId: dbCluster.id,
-  });
-
-  const dbNameString = db.name.apply((v) => `${v}`);
+  const dbConnectionString = config.requireSecret("DB_CONNECTION_STRING");
 
   const app = new digitalocean.App("demo-example", {
     spec: {
@@ -77,14 +62,7 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              // value: db.name.apply((v) => `\${${v}.DATABASE_URL}`),
-              value: "${db.DATABASE_URL}",
-            },
-            {
-              key: "CA_CERT",
-              scope: "RUN_AND_BUILD_TIME",
-              // value: db.name.apply((v) => `\${${v}.\CA_CERT}`),
-              value: "${db.CA_CERT}",
+              value: dbConnectionString,
             },
           ],
         },
@@ -122,14 +100,7 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              // value: db.name.apply((v) => `\${${v}.DATABASE_URL}`),
-              value: "${db.DATABASE_URL}",
-            },
-            {
-              key: "CA_CERT",
-              scope: "RUN_AND_BUILD_TIME",
-              // value: db.name.apply((v) => `\${${v}.\CA_CERT}`),
-              value: "${db.CA_CERT}",
+              value: dbConnectionString,
             },
           ],
         },
@@ -159,39 +130,8 @@ const main = async () => {
       //     ],
       //   },
       // ],
-      databases: [
-        {
-          name: db.name,
-          production: false,
-          engine: dbCluster.engine.apply((engine) => engine.toUpperCase()),
-          clusterName: dbCluster.name,
-        },
-      ],
     },
   });
-
-  // const existingProject = await digitalocean.getProject({
-  //   name: "demo-project",
-  // });
-
-  // let project;
-
-  // if (!existingProject) {
-  //   project = new digitalocean.Project("demo-project", {
-  //     name: "demo-project",
-  //     description: "So described right now.",
-  //     environment: "development",
-  //     purpose: "To learn Pulumi.",
-  //     resources: [app.urn, cluster.clusterUrn],
-  //   });
-  // }
-
-  // if (existingProject) {
-  //   return {
-  //     appLiveUrl: app.liveUrl,
-  //     message: `The app at ${app.liveUrl} was updated at ${app.updatedAt}. There was an existing DO project so we didnt create a new one.`,
-  //   };
-  // }
 
   return {
     stack,

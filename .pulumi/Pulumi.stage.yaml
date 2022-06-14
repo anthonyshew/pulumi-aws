@@ -1,4 +1,6 @@
 config:
+  practice:DB_CONNECTION_STRING:
+    secure: AAABAHtndpty5pJep8RxZbYXOy80PFLL3DOfvo6Q8Nip8+p0lCqQ4LLjeG7r4H4=
   practice:NEXT_PUBLIC_TEST_SECRET:
     secure: AAABAKv9wvQS5qIO+EsPxi0coHd5dRi3A0tz1rz+uzayXGjLlwq4LzxHIg==
   practice:databaseSize: db-s-1vcpu-1gb
