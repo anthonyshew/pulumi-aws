@@ -1,6 +1,6 @@
 # The deployment flow is...
 
-0. Code is brought from branches into develop. When ready... (work it out, baby)
+0. Code is brought from branches into develop. When ready... (write that app, baby)
 1. Code is committed to stage. (manual)
 2. Github action runs unit tests and lints. (GHA)
 3. Pulumi provisions resources for stages. (GHA)
@@ -11,11 +11,16 @@
 8. Code is merged to master. (manual)
 9. New Github action provisions resources for production. (GHA)
 10. Run post-deploy script for database migration. (in AppPlatform spec?)
-11. Pulumi destroys stage resources. (GHA) (can be easily removed if needed)
-12. E2Es run? (GHA)
+11. Pulumi destroys stage resources. (GHA) (optional)
+12. E2Es run? (GHA) (optional)
 13. Manual verification of production. (manual)
 
 Gotchas:
 
-- You CANNOT pre-render nextjs using this workflow. This is because you would have to migrate the production database while the previous version of the app is still out. Realistically, you need a database clone or something to use for a builder database and then promote it to production. This is outside of teh capabilities in this workflow.
-  - Instead, any pre-rendering that we have will not be conducted at build time. Use ISR and getServerSideProps to achieve this.
+- If you are going to perform a database migration, your production database will be affected. This means that your previous deployment will be out of sync with your database until you put up your new deployment.
+
+  - It is recommended to create a feature flag that will disable your application if you are to perform any breaking changes to your production database.
+
+- Changing infrastructure will cause your application deployments to get out of sync with your main branch. You will need to push to `main` twice to get everything freshened up. -
+  - First, deploy your new infrastructure.
+  - Then, deploy the new main branch application code.

@@ -62,7 +62,7 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              value: dbConnectionString,
+              value: "postgres://postgresUser:postgresPassword@:8080/postgres",
             },
           ],
         },
@@ -100,9 +100,21 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              value: dbConnectionString,
+              value: "postgres://postgresUser:postgresPassword@:8080/postgres",
             },
           ],
+        },
+      ],
+      workers: [
+        {
+          name: "postgres-db",
+          github: {
+            branch: stack === "stage" ? "stage" : "main",
+            deployOnPush: true,
+            repo: "anthonyshew/pulumi-do",
+          },
+          dockerfilePath: "Dockerfile.postgres",
+          instanceSizeSlug,
         },
       ],
       // jobs: [
