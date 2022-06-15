@@ -7,9 +7,9 @@ const main = async () => {
   const region = config.get("region") || "nyc1";
   const instanceSizeSlug = config.get("instanceSizeSlug") || "basic-xxs";
   const testSecret = config.requireSecret("NEXT_PUBLIC_TEST_SECRET");
-  const dbUser = config.requireSecret("DB_USERNAME");
-  const dbPassword = config.requireSecret("DB_PASSWORD");
-  const dbName = config.requireSecret("DB_NAME");
+  const dbUser = config.requireSecret("DB_USERNAME").apply((v) => `${v}`);
+  const dbPassword = config.requireSecret("DB_PASSWORD").apply((v) => `${v}`);
+  const dbName = config.requireSecret("DB_NAME").apply((v) => `${v}`);
 
   const app = new digitalocean.App("demo-example", {
     spec: {
@@ -103,7 +103,13 @@ const main = async () => {
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
-              value: `postgresql://${dbUser}:${dbPassword}@demo-project-db-do-user-10451867-0.b.db.ondigitalocean.com:25060/${dbName}?sslmode-require`,
+              value: `postgresql://${dbUser.apply(
+                (v) => `${v}`
+              )}:${dbPassword.apply(
+                (v) => `${v}`
+              )}@demo-project-db-do-user-10451867-0.b.db.ondigitalocean.com:25060/${dbName.apply(
+                (v) => `${v}`
+              )}?sslmode-require`,
               // value: `postgresql://stage:AVNS_HWnkFllD6o2nTo-oq4G@demo-project-db-do-user-10451867-0.b.db.ondigitalocean.com:25060/stage?sslmode=require`,
             },
           ],
