@@ -20,8 +20,8 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.STAGE_DATABASE_URL }}
         run: |
-          cd ../prisma
-          npx prisma migrate deploy --schema ../nextjs/prisma/schema.prisma
+          cd nextjs/prisma
+          npx prisma migrate deploy
 
   # create-stage:
   #   runs-on: ubuntu-latest
