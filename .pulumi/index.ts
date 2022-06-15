@@ -11,7 +11,7 @@ const main = async () => {
   const dbPassword = config.requireSecret("DB_PASSWORD");
   const dbName = config.requireSecret("DB_NAME");
 
-  const dbUrl = `postgresql://${dbUser}:${dbPassword}@demo-project-db-do-user-10451867-0.b.db.ondigitalocean.com:25060/${dbName}?sslmode-require`;
+  const dbUrl = pulumi.interpolate`postgresql://${dbUser}:${dbPassword}@demo-project-db-do-user-10451867-0.b.db.ondigitalocean.com:25060/${dbName}?sslmode-require`;
 
   const app = new digitalocean.App("demo-example", {
     spec: {
@@ -110,24 +110,6 @@ const main = async () => {
         },
       ],
       jobs: [
-        {
-          name: "migrate-db",
-          kind: "PRE_DEPLOY",
-          runCommand: "yarn migrate-db",
-          sourceDir: "/nextjs",
-          github: {
-            branch: "main",
-            deployOnPush: false,
-            repo: "anthonyshew/pulumi-do",
-          },
-          envs: [
-            {
-              key: "DATABASE_URL",
-              scope: "RUN_AND_BUILD_TIME",
-              value: dbUrl,
-            },
-          ],
-        },
         {
           name: "rollback-db",
           kind: "FAILED_DEPLOY",

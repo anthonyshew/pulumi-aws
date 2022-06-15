@@ -1,27 +1,72 @@
-# name: Deploy Stage and run E2E
+name: Deploy Stage and run E2E
 
-# on:
-#   push:
-#     branches:
-#       - stage
+on:
+  push:
+    branches:
+      - stage
 
-# jobs:
-# Do stuff to run unit tests
-#     concurrency:
-# group: ${{ github.ref }}
-# cancel-in-progress: truecon
+jobs:
+  # Do stuff to run unit tests
+  #     concurrency:
+  # group: ${{ github.ref }}
+  # cancel-in-progress: truecon
 
-# e2e:
-#   concurrency:
-#     group: ${{ github.ref }}
-#     cancel-in-progress: true
-#   needs: deploy
-#   runs-on: ubuntu-latest
-#   steps:
-#     - uses: actions/checkout@v2
+  migrate-db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Migrate database
+        uses: actions/checkout@v2
+        env:
+          DATABASE_URL: ${{ secrets.STAGE_DATABASE_URL }}
+        run: |
+          cd ../prisma
+          npx prisma migrate deploy --schema ./nextjs/prisma/schema.prisma
 
-#     - name: Cypress run
-#       uses: cypress-io/github-action@v2
-#       with:
-#         working-directory: ./lib/e2e
-#         config-file: config.ci.json
+  # create-stage:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Setup node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 16.x
+
+  #     - name: Install pulumi dependencies
+  #       working-directory: .pulumi
+  #       run: npm install
+
+  #     - name: Create resources
+  #       uses: pulumi/actions@v3
+  #       with:
+  #         work-dir: ./.pulumi
+  #         command: up
+  #         stack-name: stage
+  #         commment-on-pr: true
+  #         edit-pr-comment: true
+  #         diff: true
+  #         github-token: ${{secrets.GITHUB_TOKEN}}
+  #       env:
+  #         PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+  #         DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+
+  # - name: Step to run on Failure
+  #   if: ${{ failure() }}
+  #   run: |
+  #     echo "Deployment failed. Rolling database back in case of bad migration."
+  #     npx prisma migrate diff --to-migrations ./migrations --script > backward.sql &&  npx prisma db execute --url "${dbUrl}" --file backward.sql
+
+  # e2e:
+  #   concurrency:
+  #     group: ${{ github.ref }}
+  #     cancel-in-progress: true
+  #   needs: deploy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Cypress run
+  #       uses: cypress-io/github-action@v2
+  #       with:
+  #         working-directory: ./lib/e2e
+  #         config-file: config.ci.json
