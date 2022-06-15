@@ -14,8 +14,9 @@ jobs:
   migrate-db:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - name: Migrate database
-        uses: actions/checkout@v2
         env:
           DATABASE_URL: ${{ secrets.STAGE_DATABASE_URL }}
         run: |
