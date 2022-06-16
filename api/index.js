@@ -10,6 +10,11 @@ app.get("/", (req, res) => {
   return res.send("ping pong!");
 });
 
+app.get("/test-api", (req, res) => {
+  console.log("test api was hit");
+  return res.send("test api was hit");
+});
+
 app.get("/test-route", (req, res, next) => {
   console.log("/test-route was hit");
   return res.json(["Tony", "Lisa", "Michael", "Ginger", "pizza"]);
@@ -46,15 +51,17 @@ app.get("/secret", (req, res, next) => {
 });
 
 app.get("*", (req, res) => {
-  console.log(req.url);
+  console.log({ url: req.url });
+  console.log({ originalUrl: req.originalUrl });
+  console.log({ route: req.route });
   console.log("hit the catch all!");
   return res.send("404");
 });
 
 app.post("*", (req, res) => {
-  console.log(req.url);
-  console.log(req.originalUrl);
-  console.log(req.route);
+  console.log({ url: req.url });
+  console.log({ originalUrl: req.originalUrl });
+  console.log({ route: req.route });
   console.log("hit the catch all!");
   return res.send("404");
 });
