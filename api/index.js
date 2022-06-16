@@ -12,10 +12,23 @@ app.get("/", (req, res) => {
 
 app.get("/test-route", (req, res, next) => {
   console.log("/test-route was hit");
-  return res.json(["Tony", "Lisa", "Michael", "Ginger", "Food"]);
+  return res.json(["Tony", "Lisa", "Michael", "Ginger", "pizza"]);
 });
 
 app.post("/write-new-user", async (req, res) => {
+  console.log("you hit me");
+  const newUser = await prisma.user.create({
+    data: {
+      email: "test@test.com",
+      name: "test",
+      password: "plaintextomg",
+    },
+  });
+
+  return res.json(newUser);
+});
+
+app.post("/test-api/write-new-user", async (req, res) => {
   console.log("you hit me");
   const newUser = await prisma.user.create({
     data: {
@@ -33,11 +46,15 @@ app.get("/secret", (req, res, next) => {
 });
 
 app.get("*", (req, res) => {
+  console.log(req.url);
   console.log("hit the catch all!");
   return res.send("404");
 });
 
 app.post("*", (req, res) => {
+  console.log(req.url);
+  console.log(req.originalUrl);
+  console.log(req.route);
   console.log("hit the catch all!");
   return res.send("404");
 });
