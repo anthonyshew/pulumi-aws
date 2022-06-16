@@ -10,8 +10,6 @@ app.get("/", (req, res) => {
   return res.send("ping pong!");
 });
 
-app.get("/test-api", (req, res));
-
 app.get("/test-route", (req, res, next) => {
   console.log("/test-route was hit");
   return res.json(["Tony", "Lisa", "Michael", "Ginger", "pizza"]);
