@@ -26,6 +26,7 @@ const main = async () => {
     region: digitalocean.Region.NYC1,
     size: "db-s-1vcpu-1gb",
     version: "14",
+    name: "demo-project",
   });
 
   const db = new digitalocean.DatabaseDb(`${stack}-db`, {

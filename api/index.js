@@ -16,40 +16,23 @@ app.get("/test-route", (req, res, next) => {
 });
 
 app.post("/write-new-user", async (req, res) => {
-  console.log("you hit me");
+  console.log("you posted to /write-new-user");
   const newUser = await prisma.user.create({
     data: {
       email: "test@test.com",
-      name: "test",
+      name: req.body.name,
       password: "plaintextomg",
     },
   });
 
   return res.json(newUser);
-});
-
-app.post("/test-api/write-new-user", async (req, res) => {
-  console.log("you hit me");
-  const newUser = await prisma.user.create({
-    data: {
-      email: "test@test.com",
-      name: "test",
-      password: "plaintextomg",
-    },
-  });
-
-  return res.json(newUser);
-});
-
-app.get("/secret", (req, res, next) => {
-  return res.json({ secret: process.env.NEXT_PUBLIC_TEST_SECRET });
 });
 
 app.get("*", (req, res) => {
   console.log({ url: req.url });
   console.log({ originalUrl: req.originalUrl });
   console.log({ route: req.route });
-  console.log("hit the catch all!");
+  console.log("hit the get catch all!");
   return res.send("404");
 });
 
@@ -57,7 +40,7 @@ app.post("*", (req, res) => {
   console.log({ url: req.url });
   console.log({ originalUrl: req.originalUrl });
   console.log({ route: req.route });
-  console.log("hit the catch all!");
+  console.log("hit the post catch all!");
   return res.send("404");
 });
 
