@@ -32,6 +32,16 @@ app.get("/secret", (req, res, next) => {
   return res.json({ secret: process.env.NEXT_PUBLIC_TEST_SECRET });
 });
 
+app.get("*", (req, res) => {
+  console.log("hit the catch all!");
+  return res.send("404");
+});
+
+app.post("*", (req, res) => {
+  console.log("hit the catch all!");
+  return res.send("404");
+});
+
 app.listen(8080, () => {
   console.log("Server running on port 8080");
 });
