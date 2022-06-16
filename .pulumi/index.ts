@@ -52,7 +52,7 @@ const main = async () => {
           routes: [
             {
               path: "/test-api",
-              // preservePathPrefix: true,
+              preservePathPrefix: true,
             },
           ],
           runCommand: "npm run start",

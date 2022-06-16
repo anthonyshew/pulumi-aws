@@ -6,10 +6,12 @@ var express = require("express");
 var app = express();
 
 app.get("/", (req, res) => {
+  console.log("api root was hit");
   return res.send("ping pong!");
 });
 
 app.get("/test-route", (req, res, next) => {
+  console.log("/test-route was hit");
   return res.json(["Tony", "Lisa", "Michael", "Ginger", "Food"]);
 });
 
