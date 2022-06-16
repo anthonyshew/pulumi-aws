@@ -25,6 +25,7 @@ jobs:
 
   create-stage:
     runs-on: ubuntu-latest
+    needs: migrate-db
     steps:
       - uses: actions/checkout@v2
 
@@ -53,6 +54,8 @@ jobs:
 
       - name: Step to run on Failure
         if: ${{ failure() }}
+        env:
+          DATABASE_URL: ${{ secrets.STAGE_DATABASE_URL }}
         run: |
           echo "Deployment failed. Rolling database back in case of bad migration."
           npx prisma migrate diff --to-migrations ./migrations --script > backward.sql &&  npx prisma db execute --url "${dbUrl}" --file backward.sql
