@@ -22,6 +22,11 @@ export const getStaticProps = async () => {
   console.log(process.env.DATABASE_URL);
   const prisma = new PrismaClient();
   const allUsers = await prisma.user.findMany();
+  const removeDatesBecauseAnnoying = allUsers.map((user) => {
+    const { createdAt, ...rest } = user;
+
+    return rest;
+  });
   return {
     props: {
       allUsers,
