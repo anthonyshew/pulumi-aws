@@ -6,12 +6,39 @@ const main = async () => {
   const config = new pulumi.Config();
   const region = config.get("region") || "nyc1";
   const instanceSizeSlug = config.get("instanceSizeSlug") || "basic-xxs";
-  const testSecret = config.requireSecret("NEXT_PUBLIC_TEST_SECRET");
-  const dbUser = config.requireSecret("DB_USERNAME");
-  const dbPassword = config.requireSecret("DB_PASSWORD");
-  const dbName = config.requireSecret("DB_NAME");
 
-  const dbUrl = pulumi.interpolate`postgresql://${dbUser}:${dbPassword}@demo-project-db-do-user-10451867-0.b.db.ondigitalocean.com:25060/${dbName}?sslmode-require`;
+  const domain = new digitalocean.Domain(`${stack}-domain`, {
+    name: "trovabaseball.com",
+  });
+
+  if (stack === "prod") {
+    const record = new digitalocean.DnsRecord(`${stack}-record`, {
+      domain: domain.id,
+      type: "CNAME",
+      value: "@",
+      name: "www",
+    });
+  }
+
+  const dbCluster = new digitalocean.DatabaseCluster(`${stack}-db-cluster`, {
+    engine: "PG",
+    nodeCount: 1,
+    region: digitalocean.Region.NYC1,
+    size: "db-s-1vcpu-1gb",
+    version: "14",
+  });
+
+  const db = new digitalocean.DatabaseDb(`${stack}-db`, {
+    clusterId: dbCluster.id,
+    name: stack,
+  });
+
+  const dbUser = new digitalocean.DatabaseUser(`${stack}-db-user`, {
+    clusterId: dbCluster.id,
+    name: stack,
+  });
+
+  const dbUrl = pulumi.interpolate`postgresql://${dbUser.name}:${dbUser.password}@${dbCluster.host}:25060/${db.name}?sslmode-require`;
 
   const app = new digitalocean.App("demo-example", {
     spec: {
@@ -52,18 +79,11 @@ const main = async () => {
           routes: [
             {
               path: "/test-api",
-              // This makes it so that, within the app, the request still leads with "/test-api"
-              // preservePathPrefix: true,
             },
           ],
           runCommand: "npm run start",
           sourceDir: "/api",
           envs: [
-            {
-              key: "NEXT_PUBLIC_TEST_SECRET",
-              scope: "RUN_AND_BUILD_TIME",
-              value: testSecret,
-            },
             {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
@@ -98,11 +118,6 @@ const main = async () => {
           sourceDir: "/nextjs",
           envs: [
             {
-              key: "NEXT_PUBLIC_TEST_SECRET",
-              scope: "RUN_AND_BUILD_TIME",
-              value: testSecret,
-            },
-            {
               key: "DATABASE_URL",
               scope: "RUN_AND_BUILD_TIME",
               value: dbUrl,
@@ -133,9 +148,23 @@ const main = async () => {
     },
   });
 
+  const dbFirewall = new digitalocean.DatabaseFirewall(`${stack}-db-firewall`, {
+    clusterId: dbCluster.id,
+    rules: [
+      {
+        type: "app",
+
+        value: app.id,
+      },
+    ],
+  });
+
   return {
     stack,
-    liveUrl: app.liveUrl,
+    dbCluster,
+    db,
+    dbUser,
+    dbUrl,
   };
 };
 
@@ -143,4 +172,7 @@ const mainPromise = main();
 mainPromise.catch((err) => console.error(err));
 
 export const stackDeployed = mainPromise.then((res) => res.stack);
-export const liveUrl = mainPromise.then((res) => res.liveUrl);
+export const dbCluster = mainPromise.then((res) => res.dbCluster);
+export const db = mainPromise.then((res) => res.db);
+export const dbUser = mainPromise.then((res) => res.dbUser);
+export const dbUrl = mainPromise.then((res) => res.dbUrl);
