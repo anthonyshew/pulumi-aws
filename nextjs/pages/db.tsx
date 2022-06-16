@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const DbCall = ({ allUsers }: { allUsers: any[] }) => {
   const makeNew = () => {
-    fetch("/test-api/write-new-user")
+    fetch("/test-api/write-new-user", { method: "POST" })
       .then((res) => res.json())
       .then((res) => console.log(res));
   };
