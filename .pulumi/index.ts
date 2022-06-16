@@ -52,7 +52,8 @@ const main = async () => {
           routes: [
             {
               path: "/test-api",
-              preservePathPrefix: true,
+              // This makes it so that, within the app, the request still leads with "/test-api"
+              // preservePathPrefix: true,
             },
           ],
           runCommand: "npm run start",

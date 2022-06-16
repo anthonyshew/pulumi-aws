@@ -1,6 +1,6 @@
-// const PrismaClient = require("@prisma/client").PrismaClient;
+const PrismaClient = require("@prisma/client").PrismaClient;
 
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 var express = require("express");
 var app = express();
@@ -10,10 +10,7 @@ app.get("/", (req, res) => {
   return res.send("ping pong!");
 });
 
-app.get("/test-api", (req, res) => {
-  console.log("test api was hit");
-  return res.send("test api was hit");
-});
+app.get("/test-api", (req, res));
 
 app.get("/test-route", (req, res, next) => {
   console.log("/test-route was hit");
