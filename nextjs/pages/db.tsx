@@ -11,7 +11,6 @@ const DbCall = ({ allUsers }: { allUsers: any[] }) => {
     <>
       <button onClick={() => makeNew()}>tryMakeNew</button>
       <p>test</p>
-      <p>{allUsers}</p>
       <pre>{JSON.stringify(allUsers, null, 2)}</pre>
     </>
   );
