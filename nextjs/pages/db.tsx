@@ -10,7 +10,7 @@ const DbCall = ({ allUsers }: { allUsers: any[] }) => {
   return (
     <>
       <button onClick={() => makeNew()}>tryMakeNew</button>
-      <p>test</p>
+      <p>do the thing </p>
       <pre>{JSON.stringify(allUsers, null, 2)}</pre>
     </>
   );
