@@ -14,6 +14,7 @@ app.get("/test-route", (req, res, next) => {
 });
 
 app.post("/write-new-user", async (req, res) => {
+  console.log("you hit me");
   const newUser = await prisma.user.create({
     data: {
       email: "test@test.com",
