@@ -31,6 +31,4 @@ Desired Improvements:
 
 - The database connection string has to be managed twice: once in Pulumi and another for github actions. Can we get this cleaned up?
 
-Questions:
-
-- Does the rollback-db in the pulumi program actually work? It has not been tested to this point.
+- I don't see any clear way for rolling back busted database migrations with Prisma. This needs to be investigated.

@@ -145,26 +145,6 @@ const main = async () => {
           ],
         },
       ],
-      jobs: [
-        {
-          name: "rollback-db",
-          kind: "FAILED_DEPLOY",
-          runCommand: `npx prisma migrate diff --from-url "${dbUrl}" --to-migrations ./migrations --script > backward.sql &&  npx prisma db execute --url "${dbUrl}" --file backward.sql`,
-          sourceDir: "/nextjs",
-          github: {
-            branch: "main",
-            deployOnPush: false,
-            repo: "anthonyshew/pulumi-do",
-          },
-          envs: [
-            {
-              key: "DATABASE_URL",
-              scope: "RUN_AND_BUILD_TIME",
-              value: dbUrl,
-            },
-          ],
-        },
-      ],
     },
   });
 
