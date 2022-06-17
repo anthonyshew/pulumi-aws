@@ -1,5 +1,6 @@
-import * as digitalocean from "@pulumi/digitalocean";
 import * as pulumi from "@pulumi/pulumi";
+import * as digitalocean from "@pulumi/digitalocean";
+import * as github from "@pulumi/github";
 
 const main = async () => {
   const stack = pulumi.getStack();
@@ -20,26 +21,44 @@ const main = async () => {
     });
   }
 
-  const dbCluster = new digitalocean.DatabaseCluster(`${stack}-db-cluster`, {
-    engine: "PG",
-    nodeCount: 1,
-    region: digitalocean.Region.NYC1,
-    size: "db-s-1vcpu-1gb",
-    version: "14",
-    name: "demo-project",
-  });
+  let dbCluster;
+  let dbUrl;
 
-  const db = new digitalocean.DatabaseDb(`${stack}-db`, {
-    clusterId: dbCluster.id,
-    name: stack,
-  });
+  try {
+    dbCluster = await digitalocean.getDatabaseCluster({
+      name: "demo-project",
+    });
 
-  const dbUser = new digitalocean.DatabaseUser(`${stack}-db-user`, {
-    clusterId: dbCluster.id,
-    name: stack,
-  });
+    const existingActions = await github.getActionsPublicKey({
+      repository: "pulumi-do",
+    });
 
-  const dbUrl = pulumi.interpolate`postgresql://${dbUser.name}:${dbUser.password}@${dbCluster.host}:25060/${db.name}?sslmode-require`;
+    const existingActionSecretDbUrl = github.ActionsSecret.get(
+      `${stack}-existing-secret-url`,
+      existingActions.id
+    );
+
+    dbUrl = existingActionSecretDbUrl.plaintextValue.apply((v) => `${v}`);
+  } catch {
+    const newCluster = new digitalocean.DatabaseCluster(`${stack}-db-cluster`, {
+      engine: "PG",
+      nodeCount: 1,
+      region: digitalocean.Region.NYC1,
+      size: "db-s-1vcpu-1gb",
+      version: "14",
+      name: "demo-project",
+    });
+
+    dbCluster = newCluster;
+
+    dbUrl = newCluster.uri;
+
+    const actionSecret = new github.ActionsSecret(`${stack}-new-db-url`, {
+      repository: "pulumi-do",
+      secretName: "STAGE_DATABASE_URL",
+      plaintextValue: dbUrl,
+    });
+  }
 
   const app = new digitalocean.App("demo-example", {
     spec: {
@@ -60,6 +79,7 @@ const main = async () => {
       region,
       services: [
         {
+          name: "api",
           alerts: [
             {
               operator: "GREATER_THAN",
@@ -76,7 +96,6 @@ const main = async () => {
           httpPort: 8080,
           instanceSizeSlug,
           instanceCount: 1,
-          name: "api",
           routes: [
             {
               path: "/test-api",
@@ -93,6 +112,7 @@ const main = async () => {
           ],
         },
         {
+          name: "nextjs",
           alerts: [
             {
               operator: "GREATER_THAN",
@@ -108,13 +128,12 @@ const main = async () => {
           },
           httpPort: 8080,
           instanceSizeSlug,
-          name: "nextjs",
           routes: [
             {
               path: "/",
             },
           ],
-          buildCommand: "npm run build",
+          buildCommand: "npm run deploy",
           runCommand: "npm run start",
           sourceDir: "/nextjs",
           envs: [
@@ -154,7 +173,6 @@ const main = async () => {
     rules: [
       {
         type: "app",
-
         value: app.id,
       },
     ],
@@ -162,10 +180,6 @@ const main = async () => {
 
   return {
     stack,
-    dbCluster,
-    db,
-    dbUser,
-    dbUrl,
   };
 };
 
@@ -173,7 +187,3 @@ const mainPromise = main();
 mainPromise.catch((err) => console.error(err));
 
 export const stackDeployed = mainPromise.then((res) => res.stack);
-export const dbCluster = mainPromise.then((res) => res.dbCluster);
-export const db = mainPromise.then((res) => res.db);
-export const dbUser = mainPromise.then((res) => res.dbUser);
-export const dbUrl = mainPromise.then((res) => res.dbUrl);
