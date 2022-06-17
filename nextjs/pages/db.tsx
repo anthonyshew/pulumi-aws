@@ -7,6 +7,9 @@ const DbCall = ({ allUsers }: { allUsers: any[] }) => {
   const makeNew = () => {
     fetch("/test-api/write-new-user", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ name: nameInput }),
     })
       .then((res) => res.json())
