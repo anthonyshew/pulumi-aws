@@ -46,7 +46,6 @@ jobs:
           stack-name: stage
           commment-on-pr: true
           edit-pr-comment: true
-          diff: true
           github-token: ${{secrets.GITHUB_TOKEN}}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

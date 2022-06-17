@@ -29,7 +29,7 @@ const main = async () => {
       name: "demo-project",
     });
 
-    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.privateUri}/${dbCluster.database}?sslmode-require`;
+    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.uri}/${dbCluster.database}?sslmode-require`;
 
     // const existingActions = await github.getActionsPublicKey({
     //   repository: "pulumi-do",
@@ -46,7 +46,7 @@ const main = async () => {
     const newCluster = new digitalocean.DatabaseCluster(`${stack}-db-cluster`, {
       engine: "PG",
       nodeCount: 1,
-      region: digitalocean.Region.NYC1,
+      region,
       size: "db-s-1vcpu-1gb",
       version: "14",
       name: "demo-project",
@@ -54,7 +54,7 @@ const main = async () => {
 
     dbCluster = newCluster;
 
-    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.privateUri}/${dbCluster.database}?sslmode-require`;
+    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.uri}/${dbCluster.database}?sslmode-require`;
 
     dbUrl = connectionString;
 
@@ -153,15 +153,15 @@ const main = async () => {
     },
   });
 
-  const dbFirewall = new digitalocean.DatabaseFirewall(`${stack}-db-firewall`, {
-    clusterId: dbCluster.id,
-    rules: [
-      {
-        type: "app",
-        value: app.id,
-      },
-    ],
-  });
+  // const dbFirewall = new digitalocean.DatabaseFirewall(`${stack}-db-firewall`, {
+  //   clusterId: dbCluster.id,
+  //   rules: [
+  //     {
+  //       type: "app",
+  //       value: app.id,
+  //     },
+  //   ],
+  // });
 
   return {
     stack,
