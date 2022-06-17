@@ -16,6 +16,10 @@
 13. E2Es run? (GHA) (optional)
 14. Manual verification of production. (manual)
 
+## Setup Todos
+
+- Give your Github Actions three secrets: `DIGITALOCEAN_TOKEN`, `PULUMI_ACCESS_TOKEN`, and `USER_GITHUB_TOKEN`. The last one is a Github user PAT.
+
 Gotchas:
 
 - If you are going to perform a database migration, your production database will be affected. This means that your previous deployment will be out of sync with your database until you put up your new deployment.
@@ -28,7 +32,5 @@ Gotchas:
   - Alternatively, you can choose to deploy the new infra from your command line with the Pulumi CLI.
 
 Desired Improvements:
-
-- The database connection string has to be managed twice: once in Pulumi and another for github actions. Can we get this cleaned up?
 
 - I don't see any clear way for rolling back busted database migrations with Prisma. This needs to be investigated.
