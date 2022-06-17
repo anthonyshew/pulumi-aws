@@ -158,7 +158,7 @@ const main = async () => {
     rules: [
       {
         type: "app",
-        value: app.id,
+        value: app.activeDeploymentId,
       },
     ],
   });
