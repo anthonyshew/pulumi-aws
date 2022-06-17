@@ -5,6 +5,8 @@ const prisma = new PrismaClient();
 var express = require("express");
 var app = express();
 
+app.use(express.json());
+
 app.get("/", (req, res) => {
   console.log("api root was hit");
   return res.send("ping pong!");
