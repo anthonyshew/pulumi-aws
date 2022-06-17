@@ -24,6 +24,9 @@ const main = async () => {
   let dbCluster;
   let dbUrl;
 
+  let dbPlainText;
+  let dbEncrypted;
+
   try {
     dbCluster = await digitalocean.getDatabaseCluster({
       name: "demo-project",
@@ -38,7 +41,11 @@ const main = async () => {
       "pulumi-do:STAGE_DATABASE_URL"
     );
 
+    dbPlainText = existingActionSecretDbUrl.plaintextValue.apply((v) => `${v}`);
+    dbEncrypted = existingActionSecretDbUrl.encryptedValue.apply((v) => `${v}`);
+
     dbUrl = existingActionSecretDbUrl.plaintextValue.apply((v) => `${v}`);
+    dbUrl = existingActionSecretDbUrl.encryptedValue.apply((v) => `${v}`);
   } catch {
     const newCluster = new digitalocean.DatabaseCluster(`${stack}-db-cluster`, {
       engine: "PG",
@@ -160,6 +167,8 @@ const main = async () => {
 
   return {
     stack,
+    dbEncrypted,
+    dbPlainText,
   };
 };
 
@@ -167,3 +176,5 @@ const mainPromise = main();
 mainPromise.catch((err) => console.error(err));
 
 export const stackDeployed = mainPromise.then((res) => res.stack);
+export const dbEncrypted = mainPromise.then((res) => res.dbEncrypted);
+export const dbPlainText = mainPromise.then((res) => res.dbPlainText);
