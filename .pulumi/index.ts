@@ -29,7 +29,7 @@ const main = async () => {
       name: "demo-project",
     });
 
-    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.privateHost}:25060/${dbCluster.database}?sslmode-require`;
+    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.host}:25060/${dbCluster.database}?sslmode-require`;
 
     // const existingActions = await github.getActionsPublicKey({
     //   repository: "pulumi-do",
@@ -153,15 +153,15 @@ const main = async () => {
     },
   });
 
-  // const dbFirewall = new digitalocean.DatabaseFirewall(`${stack}-db-firewall`, {
-  //   clusterId: dbCluster.id,
-  //   rules: [
-  //     {
-  //       type: "app",
-  //       value: app.id,
-  //     },
-  //   ],
-  // });
+  const dbFirewall = new digitalocean.DatabaseFirewall(`${stack}-db-firewall`, {
+    clusterId: dbCluster.id,
+    rules: [
+      {
+        type: "app",
+        value: app.id,
+      },
+    ],
+  });
 
   return {
     stack,

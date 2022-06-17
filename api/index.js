@@ -19,6 +19,7 @@ app.get("/test-route", (req, res, next) => {
 
 app.post("/write-new-user", async (req, res) => {
   console.log("you posted to /write-new-user");
+  console.log(req.body);
   try {
     const newUser = await prisma.user.create({
       data: {
