@@ -29,17 +29,19 @@ const main = async () => {
       name: "demo-project",
     });
 
-    const existingActions = await github.getActionsPublicKey({
-      repository: "pulumi-do",
-    });
+    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.host}:${dbCluster.port}/${dbCluster.database}?sslmode-require`;
+
+    // const existingActions = await github.getActionsPublicKey({
+    //   repository: "pulumi-do",
+    // });
 
     const actionSecret = new github.ActionsSecret(`${stack}-new-db-url`, {
       repository: "pulumi-do",
       secretName: "STAGE_DATABASE_URL",
-      plaintextValue: dbCluster.uri,
+      plaintextValue: connectionString,
     });
 
-    dbUrl = dbCluster.uri;
+    dbUrl = connectionString;
   } catch {
     const newCluster = new digitalocean.DatabaseCluster(`${stack}-db-cluster`, {
       engine: "PG",
@@ -52,7 +54,9 @@ const main = async () => {
 
     dbCluster = newCluster;
 
-    dbUrl = newCluster.uri;
+    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.host}:${dbCluster.port}/${dbCluster.database}?sslmode-require`;
+
+    dbUrl = connectionString;
 
     const actionSecret = new github.ActionsSecret(`${stack}-new-db-url`, {
       repository: "pulumi-do",
