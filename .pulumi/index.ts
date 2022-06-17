@@ -54,7 +54,7 @@ const main = async () => {
 
     dbCluster = newCluster;
 
-    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.host}:25060/${dbCluster.database}?sslmode-require`;
+    const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.privateHost}:25060/${dbCluster.database}?sslmode-require`;
 
     dbUrl = connectionString;
 
