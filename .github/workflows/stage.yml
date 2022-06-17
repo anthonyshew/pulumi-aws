@@ -6,22 +6,11 @@ on:
       - stage
 
 jobs:
-  # Do stuff to run unit tests
+  # Do stuff to run unit tests?
+  # With turbo, I'll probably do this in the build step there
   #     concurrency:
   # group: ${{ github.ref }}
   # cancel-in-progress: truecon
-
-  migrate-db:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Migrate database
-        env:
-          DATABASE_URL: ${{ secrets.STAGE_DATABASE_URL }}
-        run: |
-          cd nextjs/prisma
-          npx prisma migrate deploy
 
   create-stage:
     runs-on: ubuntu-latest

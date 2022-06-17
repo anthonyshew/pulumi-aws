@@ -29,13 +29,13 @@ const main = async () => {
       name: "demo-project",
     });
 
-    const existingActions = await github.getActionsPublicKey({
-      repository: "pulumi-do",
-    });
+    // const existingActions = await github.getActionsPublicKey({
+    //   repository: "pulumi-do",
+    // });
 
     const existingActionSecretDbUrl = github.ActionsSecret.get(
       `${stack}-existing-secret-url`,
-      existingActions.id
+      "STAGE_DATABASE_URL"
     );
 
     dbUrl = existingActionSecretDbUrl.plaintextValue.apply((v) => `${v}`);
