@@ -17,15 +17,20 @@ app.get("/test-route", (req, res, next) => {
 
 app.post("/write-new-user", async (req, res) => {
   console.log("you posted to /write-new-user");
-  const newUser = await prisma.user.create({
-    data: {
-      email: "test@test.com",
-      name: req.body.name,
-      password: "plaintextomg",
-    },
-  });
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        email: "test@test.com",
+        name: req.body.name,
+        password: "plaintextomg",
+      },
+    });
+    return res.json(newUser);
+  } catch (e) {
+    console.log(e);
+  }
 
-  return res.json(newUser);
+  return res.json({});
 });
 
 app.get("*", (req, res) => {
