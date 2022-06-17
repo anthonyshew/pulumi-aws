@@ -153,15 +153,15 @@ const main = async () => {
     },
   });
 
-  const dbFirewall = new digitalocean.DatabaseFirewall(`${stack}-db-firewall`, {
-    clusterId: dbCluster.id,
-    rules: [
-      {
-        type: "app",
-        value: app.id,
-      },
-    ],
-  });
+  // const dbFirewall = new digitalocean.DatabaseFirewall(`${stack}-db-firewall`, {
+  //   clusterId: dbCluster.id,
+  //   rules: [
+  //     {
+  //       type: "app",
+  //       value: app.id,
+  //     },
+  //   ],
+  // });
 
   return {
     stack,
