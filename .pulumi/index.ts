@@ -35,7 +35,7 @@ const main = async () => {
 
     const existingActionSecretDbUrl = github.ActionsSecret.get(
       `${stack}-existing-secret-url`,
-      "pulumi-do/STAGE_DATABASE_URL"
+      "pulumi-do:STAGE_DATABASE_URL"
     );
 
     dbUrl = existingActionSecretDbUrl.plaintextValue.apply((v) => `${v}`);
