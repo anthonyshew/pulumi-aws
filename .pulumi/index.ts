@@ -76,12 +76,12 @@ const main = async () => {
       ],
       name: "demo-example",
       domainNames: [
-        // {
-        //   name: "trovabaseball.com",
-        // },
-        // {
-        //   name: "www.trovabaseball.com",
-        // },
+        {
+          name: "trovabaseball.com",
+        },
+        {
+          name: "www.trovabaseball.com",
+        },
       ],
       region,
       services: [
