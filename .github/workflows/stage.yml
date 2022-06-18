@@ -25,6 +25,7 @@ jobs:
           npx prisma migrate deploy
 
   create-stage:
+    needs: migrate-db
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

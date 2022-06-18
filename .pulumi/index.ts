@@ -12,14 +12,14 @@ const main = async () => {
     name: "trovabaseball.com",
   });
 
-  if (stack === "prod") {
-    const record = new digitalocean.DnsRecord(`${stack}-record`, {
-      domain: domain.id,
-      type: "CNAME",
-      value: "@",
-      name: "www",
-    });
-  }
+  // if (stack === "prod") {
+  const record = new digitalocean.DnsRecord(`${stack}-record`, {
+    domain: domain.id,
+    type: "CNAME",
+    value: "@",
+    name: "www",
+  });
+  // }
 
   let dbCluster;
   let dbUrl;
