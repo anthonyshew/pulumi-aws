@@ -14,7 +14,7 @@
   resolved "https://registry.yarnpkg.com/@logdna/tail-file/-/tail-file-2.2.0.tgz#158a362d293f940dacfd07c835bf3ae2f9e0455a"
   integrity sha512-XGSsWDweP80Fks16lwkAUIr54ICyBs6PsI4mpfTLQaWgEJRtY9xEV+PeyDpJ+sJEGZxqINlpmAwe/6tS1pP8Ng==
 
-"@pulumi/aws@^5.0.0":
+"@pulumi/aws@^5.8.0":
   version "5.8.0"
   resolved "https://registry.yarnpkg.com/@pulumi/aws/-/aws-5.8.0.tgz#b547dd812921756d683b5a025fd6ca5445269098"
   integrity sha512-zJcgluaSllf4OrXh9IDBCW/ReqdB4bvHVDetF+w3t9RSNsTW9ceC5AAnnRGsWZvbX2WZndIMPvrnc3wLIL9+pA==
@@ -52,6 +52,13 @@
   dependencies:
     "@pulumi/pulumi" "^3.0.0"
     semver "^5.4.0"
+
+"@pulumi/github@^4.12.0":
+  version "4.12.0"
+  resolved "https://registry.yarnpkg.com/@pulumi/github/-/github-4.12.0.tgz#987974e66aa0fd6832706a23f65291c91545f54e"
+  integrity sha512-dSzaKrztDFOKkES4FHzbD6542b8wG6Ac0R7mS30EVaHx8IM3/4NP7ki8rnnUoidIZP+d3tXO75noma7wiYOXSg==
+  dependencies:
+    "@pulumi/pulumi" "^3.0.0"
 
 "@pulumi/pulumi@^3.0.0":
   version "3.34.1"
