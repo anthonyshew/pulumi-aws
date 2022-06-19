@@ -13,6 +13,7 @@ const vpc = new awsx.ec2.Vpc("demo-vpc", {
 // SG => Firewall like
 // SGs should have ingress and egress (inbound and outbound)
 // ingress rule => 80 => ip-address anywhere(0.0.0.0/0)
+// RDS ingress rule => 5432 => service (10.0.0.0/16)
 // egress rules => ANY => anywhere
 const securityGroup = new aws.ec2.SecurityGroup("demo-security-group", {
   vpcId: vpc.id,
@@ -66,6 +67,9 @@ const service = new awsx.ecs.FargateService("demo-service", {
 });
 
 // Add a NAT Gateway on your VPC => route all internal trafic to your NAT GATEWAY
+
+// RDS => residing in your private subnet (=> VPC)
+// RDS to communicate with your Fargate service => Service x should be able to connect to 5432 (PG)
 
 export const url = listener.endpoint.hostname;
 export const secGroup = securityGroup.name;
