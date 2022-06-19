@@ -1,176 +1,50 @@
-import * as pulumi from "@pulumi/pulumi";
-import * as digitalocean from "@pulumi/digitalocean";
-import * as github from "@pulumi/github";
+import * as aws from "@pulumi/aws";
+import * as awsx from "@pulumi/awsx";
 
-const main = async () => {
-  const stack = pulumi.getStack();
-  const config = new pulumi.Config();
-  const region = config.get("region") || "nyc1";
-  const instanceSizeSlug = config.get("instanceSizeSlug") || "basic-xxs";
+const vpc = new awsx.ec2.Vpc("demo-vpc", {
+  cidrBlock: "10.0.1.0/24",
+});
 
-  const domain = new digitalocean.Domain(`${stack}-domain`, {
-    name: "trovabaseball.com",
-  });
+const securityGroup = new aws.ec2.SecurityGroup("demo-security-group", {
+  vpcId: vpc.id,
+});
 
-  // if (stack === "prod") {
-  const record = new digitalocean.DnsRecord(`${stack}-record`, {
-    domain: domain.id,
-    type: "CNAME",
-    value: "@",
-    name: "www",
-  });
-  // }
+const cluster = new awsx.ecs.Cluster("demo-cluster", {
+  vpc,
+  securityGroups: [securityGroup.id],
+});
 
-  let dbCluster;
-  let dbUrl;
+const listener = new awsx.lb.NetworkListener("nginx-lb", {
+  port: 80,
+});
 
-  try {
-    dbCluster = await digitalocean.getDatabaseCluster({
-      name: "demo-project",
-    });
 
-    // const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.uri}/${dbCluster.database}?sslmode-require`;
-    const connectionString = dbCluster.uri;
 
-    // const existingActions = await github.getActionsPublicKey({
-    //   repository: "pulumi-do",
-    // });
-
-    const actionSecret = new github.ActionsSecret(`${stack}-new-db-url`, {
-      repository: "pulumi-do",
-      secretName: "STAGE_DATABASE_URL",
-      plaintextValue: connectionString,
-    });
-
-    dbUrl = connectionString;
-  } catch {
-    const newCluster = new digitalocean.DatabaseCluster(`${stack}-db-cluster`, {
-      engine: "PG",
-      nodeCount: 1,
-      region,
-      size: "db-s-1vcpu-1gb",
-      version: "14",
-      name: "demo-project",
-    });
-
-    dbCluster = newCluster;
-
-    // const connectionString = pulumi.interpolate`postgresql://${dbCluster.user}:${dbCluster.password}@${dbCluster.uri}/${dbCluster.database}?sslmode-require`;
-    const connectionString = dbCluster.uri;
-
-    dbUrl = connectionString;
-
-    const actionSecret = new github.ActionsSecret(`${stack}-new-db-url`, {
-      repository: "pulumi-do",
-      secretName: "STAGE_DATABASE_URL",
-      plaintextValue: dbUrl,
-    });
-  }
-
-  const app = new digitalocean.App("demo-example", {
-    spec: {
-      alerts: [
-        // {
-        // rule: "DEPLOYMENT_FAILED",
-        // },
-      ],
-      name: "demo-example",
-      domainNames: [
-        {
-          name: "trovabaseball.com",
+const service = new awsx.ecs.FargateService("demo-service", {
+  cluster,
+  desiredCount: 1,
+  taskDefinitionArgs: {
+    containers: [ {
+      image: "nginx:latest",
+      cpu: 512,
+      logConfiguration: {
+        logDriver: "awslogs",
+        options: {
+          "awslogs-region": "us-east-1",
+          "awslogs-group": "demo-service",
+          "awslogs-create-group": "true",
+          "awslogs-stream-prefix": "nginx",
         },
-        {
-          name: "www.trovabaseball.com",
-        },
-      ],
-      region,
-      services: [
-        {
-          name: "api",
-          alerts: [
-            {
-              operator: "GREATER_THAN",
-              rule: "CPU_UTILIZATION",
-              value: 75,
-              window: "FIVE_MINUTES",
-            },
-          ],
-          github: {
-            branch: stack === "stage" ? "stage" : "main",
-            deployOnPush: true,
-            repo: "anthonyshew/pulumi-do",
-          },
-          httpPort: 8080,
-          instanceSizeSlug,
-          instanceCount: 1,
-          routes: [
-            {
-              path: "/test-api",
-            },
-          ],
-          runCommand: "npm run start",
-          sourceDir: "/api",
-          envs: [
-            {
-              key: "DATABASE_URL",
-              scope: "RUN_AND_BUILD_TIME",
-              value: dbUrl,
-            },
-          ],
-        },
-        {
-          name: "nextjs",
-          alerts: [
-            {
-              operator: "GREATER_THAN",
-              rule: "CPU_UTILIZATION",
-              value: 75,
-              window: "FIVE_MINUTES",
-            },
-          ],
-          github: {
-            branch: stack === "stage" ? "stage" : "main",
-            deployOnPush: true,
-            repo: "anthonyshew/pulumi-do",
-          },
-          httpPort: 8080,
-          instanceSizeSlug,
-          routes: [
-            {
-              path: "/",
-            },
-          ],
-          buildCommand: "npm run deploy",
-          runCommand: "npm run start",
-          sourceDir: "/nextjs",
-          envs: [
-            {
-              key: "DATABASE_URL",
-              scope: "RUN_AND_BUILD_TIME",
-              value: dbUrl,
-            },
-          ],
-        },
-      ],
-    },
-  });
+      },
+      memory: 128,
+      essential: true,
+      // Can you do away with the port mappings using this?
+      // networkListener: 80,
+      portMappings: [listener],
+    } ],
+  },
+});
 
-  //   const dbFirewall = new digitalocean.DatabaseFirewall(`${stack}-db-firewall`, {
-  //     clusterId: dbCluster.id,
-  //     rules: [
-  //       {
-  //         type: "app",
-  //         value: app.id,
-  //       },
-  //     ],
-  //   });
-
-  return {
-    stack,
-  };
-};
-
-const mainPromise = main();
-mainPromise.catch((err) => console.error(err));
-
-export const stackDeployed = mainPromise.then((res) => res.stack);
+export const url = listener.endpoint.hostname;
+export const secGroup = securityGroup.name;
+export const thingy = service;
