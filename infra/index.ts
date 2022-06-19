@@ -2,6 +2,7 @@ import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 import { TcpPorts, VpcSubnetArgs, SecurityGroup } from "@pulumi/awsx/ec2";
 import { InstanceType } from "@pulumi/aws/ec2";
+import { PrivateDnsNamespace, Service } from "@pulumi/aws/servicediscovery";
 // Route table
 // Where a specific route should go =>
 //  Route from A => internetgateway (public subnet routing to internet)> Private subnet (private no external internet) => Route table in your private subnet add a NAT gateaway => allow to go to the internet General metadata
@@ -84,7 +85,7 @@ const setup = async () => {
     masterUsername: "demo",
     vpcSecurityGroupIds: [isolatedSubnet[0].id],
     masterPassword: "demo", // Change this method. Preferable to IAM roles
-    tags
+    tags,
   });
 
   // RDS instances
@@ -94,30 +95,76 @@ const setup = async () => {
     name: "demo-db-instance",
     username: "demo",
     password: "demo",
-    tags
+    tags,
   });
 
+  const privateSecurityGroup = new SecurityGroup("private-secutiy-group", {
+    tags,
+  });
 
-  const privateSecurityGroup = new SecurityGroup('private-secutiy-group', {
-    tags
-  })
   // Fargate related
-  const ecsCluster = new awsx.ecs.Cluster('demo-ecs-cluster', {
+  const ecsCluster = new awsx.ecs.Cluster("demo-ecs-cluster", {
     vpc,
     securityGroups: [privateSecurityGroup],
     tags,
-  })
+  });
 
-  const fargateTask = new awsx.ecs.FargateService('demo-fargate-service', {
+  const namespace = new PrivateDnsNamespace("demo-namespace", {
+    vpc: vpc.id,
+    tags,
+  });
+
+  const serviceRegistryHelloWorld = new Service("demo-hello-discover", {
+    dnsConfig: {
+      namespaceId: namespace.id,
+      dnsRecords: [
+        {
+          ttl: 10,
+          type: "SRV",
+        },
+      ],
+      routingPolicy: "WEIGHTED",
+    },
+    healthCheckCustomConfig: {
+      failureThreshold: 1,
+    },
+  });
+  const fargateServiceTask = new awsx.ecs.FargateTaskDefinition(
+    "demo-hello-world",
+    {
+      container: {
+        essential: true,
+        image: "pvermeyden/nodejs-hello-world",
+        portMappings: [
+          {
+            containerPort: 80,
+            hostPort: 3000,
+          },
+        ],
+      },
+
+    }
+  );
+
+  const fargateService = new awsx.ecs.FargateService("demo-fargate-service", {
     deploymentCircuitBreaker: {
       enable: true,
       rollback: true,
     },
+    serviceRegistries: {
+      containerName: "container",
+      containerPort: 3000,
+      port: 80,
+      registryArn: serviceRegistryHelloWorld.arn,
+    },
     assignPublicIp: false,
     subnets: [privateSubnet[0].id],
     cluster: ecsCluster,
-
+    os: "linux",
+    taskDefinition: fargateServiceTask
   });
+
+
   // Cloud map
   // Service discovery with Route53
   // Discover services based on DNS.
