@@ -8,18 +8,17 @@ var app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  console.log("api root was hit");
+  console.log("/ on the api was hit. Great work!");
   return res.send("ping pong!");
 });
 
 app.get("/test-route", (req, res, next) => {
-  console.log("/test-route was hit");
-  return res.json(["Tony", "Lisa", "Michael", "Ginger", "pizza"]);
+  console.log("/test-route on the api was hit. Good stuff!");
+  return res.json({ message: "You've done it! Awesome!" });
 });
 
 app.post("/write-new-user", async (req, res) => {
-  console.log("you posted to /write-new-user");
-  console.log(process.env.DATABASE_URL);
+  console.log("/write-new-user was hit as a POST route. Nice!");
   console.log(req.body);
   try {
     const newUser = await prisma.user.create({
@@ -30,27 +29,19 @@ app.post("/write-new-user", async (req, res) => {
       },
     });
     return res.json(newUser);
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
   }
 
-  return res.json({});
+  return res.json({ message: "Looks like something went wrong.", e });
 });
 
 app.get("*", (req, res) => {
-  console.log({ url: req.url });
-  console.log({ originalUrl: req.originalUrl });
-  console.log({ route: req.route });
-  console.log("hit the get catch all!");
-  return res.send("404");
+  return res.send("404'ed for a GET request");
 });
 
 app.post("*", (req, res) => {
-  console.log({ url: req.url });
-  console.log({ originalUrl: req.originalUrl });
-  console.log({ route: req.route });
-  console.log("hit the post catch all!");
-  return res.send("404");
+  return res.send("404'ed for a POST request");
 });
 
 app.listen(8080, () => {

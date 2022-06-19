@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import styles from "../styles/Home.module.css";
 
 const useRequest = (path: string) => {
@@ -12,10 +12,9 @@ const useRequest = (path: string) => {
 };
 
 const Home: NextPage = () => {
-  // Works for nextjs routes
+  // This should work out of the box for Nextjs
   useRequest(`/api/hello`);
-  // Works for the API container
-  // The base ("/another-api") of this route would have to change if you changed the app spec for it.
+  // TODO: Let's get this working for requesting the API container
   useRequest(`/test-api/test-route`);
 
   return (

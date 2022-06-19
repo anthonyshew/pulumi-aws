@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
 import { useState } from "react";
 
-const DbCall = ({ allUsers }: { allUsers: any[] }) => {
+const DbCallerPage = ({ allUsers }: { allUsers: any[] }) => {
   const [nameInput, setNameInput] = useState("");
 
   const makeNew = () => {
@@ -20,26 +20,31 @@ const DbCall = ({ allUsers }: { allUsers: any[] }) => {
     <>
       <input value={nameInput} onChange={(e) => setNameInput(e.target.value)} />
       <button onClick={() => makeNew()}>tryMakeNew</button>
-      <p>do the thing </p>
+      <p>This page refreshes its prerender every 5 seconds.</p>
+      <p>
+        Keep refreshing for up to 10 seconds to see if your database has been
+        updated.
+      </p>
       <pre>{JSON.stringify(allUsers, null, 2)}</pre>
     </>
   );
 };
 
-export default DbCall;
+export default DbCallerPage;
 
 export const getStaticProps = async () => {
-  console.log(process.env.DATABASE_URL);
-  const prisma = new PrismaClient();
-  const allUsers = await prisma.user.findMany();
-  const removeDatesBecauseAnnoying = allUsers.map((user) => {
-    const { createdAt, ...rest } = user;
+  // console.log(process.env.DATABASE_URL);
+  // const prisma = new PrismaClient();
+  // const allUsers = await prisma.user.findMany();
+  // const removeDatesBecauseAnnoying = allUsers.map((user) => {
+  //   const { createdAt, ...rest } = user;
 
-    return rest;
-  });
+  // return rest;
+  // });
   return {
     props: {
-      allUsers: removeDatesBecauseAnnoying,
+      // allUsers: removeDatesBecauseAnnoying,
+      allUser: [],
     },
     revalidate: 5,
   };

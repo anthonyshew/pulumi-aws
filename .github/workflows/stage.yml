@@ -12,20 +12,22 @@ jobs:
   # group: ${{ github.ref }}
   # cancel-in-progress: truecon
 
-  migrate-db:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # TODO: Do we want to do a Prisma migrate here?
+  # The major requirement is that this migration MUST occur before Nextjs tried to build.
+  # migrate-db:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Migrate database
-        env:
-          DATABASE_URL: ${{ secrets.STAGE_DATABASE_URL }}
-        run: |
-          cd nextjs/prisma
-          npx prisma migrate deploy
+  #     - name: Migrate database
+  #       env:
+  #         DATABASE_URL: ${{ secrets.STAGE_DATABASE_URL }}
+  #       run: |
+  #         cd nextjs/prisma
+  #         npx prisma migrate deploy
 
   create-stage:
-    needs: migrate-db
+    # needs: migrate-db
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

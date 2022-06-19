@@ -1,3 +1,8 @@
+# You may not want to tear down your staging environment when you attempt to deploy to production.
+# Other options:
+# You could choose to never tear it down if you are willing to pay for it to continue to run.
+# You could manually tear it down either using your Pulumi CLI or using this workflow with a manual trigger.
+# You could tear down after a successful deployment to production.
 name: Tear Down Stage
 
 on:
