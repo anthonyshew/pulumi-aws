@@ -1,16 +1,14 @@
-// const PrismaClient = require("@prisma/client").PrismaClient;
-// const prisma = new PrismaClient();
+import express from "express";
+import { tryMe } from "@proj/constants";
 
-const test = require("@proj/constants").tryMe;
-
-var express = require("express");
-var app = express();
+const app = express();
+const port = process.env.PORT ?? 5000;
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/test", (req, res) => {
   console.log("/ on the api was hit. Great work!");
-  return res.send(test);
+  return res.send(tryMe);
 });
 
 app.get("/test-route", (req, res, next) => {
@@ -45,6 +43,6 @@ app.post("*", (req, res) => {
   return res.send("404'ed for a POST request");
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+app.listen(port, () => {
+  console.log(`[api-server]: Server running at on ${port}`);
 });
