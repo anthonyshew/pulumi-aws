@@ -3,18 +3,13 @@ import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 import * as docker from "@pulumi/docker";
 
-const tags = {
-  // Question: Should we make this go off of the stack?
-  ENVIRONMENT: process.env.ENV || "dev",
-};
-
 const main = async () => {
   // Your project and stack info.
   const project = pulumi.getProject();
   const stack = pulumi.getStack();
   const config = new pulumi.Config();
-
   // Grab all of our config for this stack.
+  const environment = config.require("environment");
   const region = config.require("region");
   const dbPass = config.requireSecret("rds-password");
   const dbPublic = config.requireBoolean("rds-public") ?? false;
@@ -24,7 +19,9 @@ const main = async () => {
   // If we leave it out of the cluster declaration, it "just works".
   // Why would we want to be explicit with this?
   // const dbMultiAZ = ["a", "b", "c"].map((value) => region + value);
-
+  const tags = {
+    environment,
+  };
   // A VPC is a "virtual private cloud".
   // This is a cloud with the cloud for you to use as your own.
   // It has all of the characteristics of a cloud provider but now it is at your command.
@@ -48,10 +45,7 @@ const main = async () => {
     tags,
   });
 
-  // Question: These went unused, do we still want them?
-  const publicSubnets = await vpc.getSubnets("public");
   const isolatedSubnets = await vpc.getSubnets("isolated");
-
   const privateSubnets = await vpc.getSubnets("private");
 
   // "Security groups" are used to control access to your network.
@@ -91,14 +85,7 @@ const main = async () => {
     "http-access",
     webSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
-    new awsx.ec2.TcpPorts(80)
-  );
-
-  awsx.ec2.SecurityGroupRule.egress(
-    "https-access",
-    webSecurityGroup,
-    new awsx.ec2.AnyIPv4Location(),
-    new awsx.ec2.TcpPorts(443)
+    new awsx.ec2.AllTcpPorts()
   );
 
   // Here, we have the subnet grouping for locking down access to out database.
@@ -144,7 +131,7 @@ const main = async () => {
     iamDatabaseAuthenticationEnabled: true,
     vpcSecurityGroupIds: [dbSecurityGroup.id],
     dbSubnetGroupName: dbSubnetGroup.id,
-    skipFinalSnapshot: true,
+    skipFinalSnapshot: false,
   });
 
   // Scalability for your database instances
@@ -220,78 +207,102 @@ const main = async () => {
   // Tasks are instances of the containers that Fargate is supposed to have running.
   // You can define many tasks within one Fargate instance.
   // That way, you can be running several applications that can talk to each other.
-  const ecsTask = new awsx.ecs.FargateTaskDefinition(
-    `${project}-${stack}-task`,
+
+  const webTask = new awsx.ecs.FargateTaskDefinition(
+    `${project}-${stack}-web-task`,
     {
       tags,
-      containers: {
-        web: {
-          essential: true,
-          image: nextjsImage,
-          logConfiguration: {
-            logDriver: "awslogs",
-            options: {
-              "awslogs-region": region,
-              "awslogs-group": "web-service",
-              "awslogs-create-group": "true",
-              "awslogs-stream-prefix": "test",
-            },
+      container: {
+        essential: true,
+        image: nextjsImage,
+        logConfiguration: {
+          logDriver: "awslogs",
+          options: {
+            "awslogs-region": region,
+            "awslogs-group": "web-service",
+            "awslogs-create-group": "true",
+            "awslogs-stream-prefix": "test",
           },
-          portMappings: [
-            {
-              containerPort: 80,
-              hostPort: 80,
-            },
-          ],
         },
-        api: {
-          essential: true,
-          image: apiImage,
-          logConfiguration: {
-            logDriver: "awslogs",
-            options: {
-              "awslogs-region": region,
-              "awslogs-group": "api-service",
-              "awslogs-create-group": "true",
-              "awslogs-stream-prefix": "test",
-            },
+        portMappings: [
+          {
+            containerPort: 3000,
+            hostPort: 3000,
           },
-          portMappings: [
-            {
-              containerPort: 80,
-              hostPort: 80,
-            },
-          ],
-        },
+        ],
       },
     }
   );
 
-  const ecsServices = new awsx.ecs.FargateService("ecs-service", {
-    cluster: ecsCluster,
+  const apiTask = new awsx.ecs.FargateTaskDefinition(
+    `${project}-${stack}-api-task`,
+    {
+      tags,
+      container: {
+        essential: true,
+        image: apiImage,
+        logConfiguration: {
+          logDriver: "awslogs",
+          options: {
+            "awslogs-region": region,
+            "awslogs-group": "web-service",
+            "awslogs-create-group": "true",
+            "awslogs-stream-prefix": "test",
+          },
+        },
+        portMappings: [
+          {
+            containerPort: 80,
+            hostPort: 80,
+          },
+        ],
+      },
+    }
+  );
 
-    // Task Config and Scale
-    desiredCount: 1,
-    taskDefinition: ecsTask,
+  const kittrService = new awsx.ecs.FargateService(
+    `${project}-${stack}-kittr-web-service`,
+    {
+      deploymentCircuitBreaker: {
+        rollback: true,
+        enable: true,
+      },
+      subnets: privateSubnets.map((subnet) => subnet.id),
+        securityGroups: [webSecurityGroup],
+      desiredCount: 1,
+      enableEcsManagedTags: true,
+      assignPublicIp: false,
+      serviceRegistries: {
+        containerName: "container",
+        containerPort: 3000,
+        registryArn: serviceRegistryWeb.arn,
+      },
+      os: "linux",
+      taskDefinition: webTask,
+    }
+  );
 
-    // Service Discovery
-    serviceRegistries: {
-      port: 80,
-      registryArn: serviceRegistryWeb.arn,
-    },
-
-    // Firewall and Networking
-    securityGroups: [webSecurityGroup],
-    subnets: privateSubnets.map((subnet) =>
-      subnet.subnet.id.apply((t) => t as string)
-    ),
-    assignPublicIp: false,
-
-    deploymentCircuitBreaker: {
-      enable: true,
-      rollback: true,
-    },
-  });
+  const kittrApiService = new awsx.ecs.FargateService(
+    `${project}-${stack}-kittr-api-service`,
+    {
+      deploymentCircuitBreaker: {
+        rollback: true,
+        enable: true,
+      },
+      subnets: isolatedSubnets.map(subnet => subnet.id),
+      desiredCount: 1,
+      securityGroups: [webSecurityGroup],
+      enableEcsManagedTags: true,
+      assignPublicIp: false,
+      serviceRegistries: {
+        containerName: "container",
+        containerPort: 80,
+        registryArn: serviceRegistryWeb.arn,
+      },
+      os: "linux",
+      taskDefinition: apiTask,
+    }
+  );
 
   const dbIngress = awsx.ec2.SecurityGroupRule.ingress(
     "database-access-private",
