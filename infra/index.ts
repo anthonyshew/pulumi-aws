@@ -176,7 +176,7 @@ const ecsCluster = new awsx.ecs.Cluster("ecs-cluster", {
 const ecsWebTask = new awsx.ecs.FargateTaskDefinition("ecs-task-web", {
   container: {
     essential: true,
-    image: "pvermeyden/nodejs-hello-world:a1e8cf1edcc04e6d905078aed9861807f6da0da4",
+    image: "dpage/pgadmin4:latest",
 
     logConfiguration: {
       logDriver: "awslogs",
@@ -187,6 +187,21 @@ const ecsWebTask = new awsx.ecs.FargateTaskDefinition("ecs-task-web", {
         "awslogs-stream-prefix": "test",
       },
     },
+
+    environment: [
+      {
+        name: "PGADMIN_DEFAULT_EMAIL",
+        value: "user@local.local",
+      },
+      {
+        name: "PGADMIN_DEFAULT_PASSWORD",
+        value: config.dbPass
+      },
+      {
+        name: "PGADMIN_LISTEN_PORT",
+        value: "80"
+      }
+    ],
 
     //Port Forwarding
     portMappings: [
@@ -257,7 +272,7 @@ const webProxyRoute = new aws.apigatewayv2.Route("api-route", {
   target: pulumi.interpolate`integrations/${cloudMapIntegration.id}`,
 });
 
-const webStageGateway= new aws.apigatewayv2.Stage("api-gateway-stage", {apiId: apiGateway.id, autoDeploy: true});
+const webStageGateway = new aws.apigatewayv2.Stage("api-gateway-stage", {apiId: apiGateway.id, autoDeploy: true});
 
 //export const url = listener.endpoint.hostname;
 //export const secGroup = securityGroup.name;

@@ -1,5 +1,5 @@
 config:
   practice:aws-region: eu-west-2
-  practice:rds-instanceCount: "0"
+  practice:rds-instanceCount: "1"
   practice:rds-password:
     secure: AAABAL/U6sJ5Nyth6fFV4r5Fm80nBcYAm1JVYc2sGet8+06gSqkNZnGUYz8=
