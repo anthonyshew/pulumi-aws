@@ -1,36 +1,77 @@
-# The deployment flow is...
+# Turborepo starter
 
-0. Code is brought from branches into develop. When ready... (write that app, baby)
-1. Code is committed to stage. (manual)
-2. Github action runs unit tests and lints. (GHA)
-3. Run script for database migration. (GHA)
-4. Pulumi provisions resources for stages. (GHA)
-5. E2Es run. (GHA)
-6. Code is pull requested to master. (GHA? If not, manual)
-7. Manual verification of the stage. (manual)
-8. IF BREAKING CHANGES IN DATABASE MIGRATION, turn on feature flag to bring down production application.
-9. Code is merged to master. (manual)
-10. Run script for database migration. (GHA)
-11. New Github action provisions resources for production. (GHA)
-12. Pulumi destroys stage resources. (GHA) (optional)
-13. E2Es run? (GHA) (optional)
-14. Manual verification of production. (manual)
+This is an official Yarn v1 starter turborepo.
 
-## Setup Todos
+## What's inside?
 
-- Give your Github Actions three secrets: `DIGITALOCEAN_TOKEN`, `PULUMI_ACCESS_TOKEN`, and `USER_GITHUB_TOKEN`. The last one is a Github user PAT.
+This turborepo uses [Yarn](https://classic.yarnpkg.com/lang/en/) as a package manager. It includes the following packages/apps:
 
-Gotchas:
+### Apps and Packages
 
-- If you are going to perform a database migration, your production database will be affected. This means that your previous deployment will be out of sync with your database until you put up your new deployment.
+- `docs`: a [Next.js](https://nextjs.org) app
+- `web`: another [Next.js](https://nextjs.org) app
+- `ui`: a stub React component library shared by both `web` and `docs` applications
+- `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `tsconfig`: `tsconfig.json`s used throughout the monorepo
 
-  - It is recommended to create a feature flag that will disable your application if you are to perform any breaking changes to your production database.
+Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-- Changing infrastructure will cause your application deployments to get out of sync with your main branch. You will need to push to `main` twice to get everything freshened up.
-  - First, deploy your new infrastructure.
-  - Then, deploy the new main branch application code.
-  - Alternatively, you can choose to deploy the new infra from your command line with the Pulumi CLI.
+### Utilities
 
-Desired Improvements:
+This turborepo has some additional tools already setup for you:
 
-- I don't see any clear way for rolling back busted database migrations with Prisma. This needs to be investigated.
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
+
+## Setup
+
+This repository is used in the `npx create-turbo` command, and selected when choosing which package manager you wish to use with your monorepo (Yarn).
+
+### Build
+
+To build all apps and packages, run the following command:
+
+```
+cd my-turborepo
+yarn run build
+```
+
+### Develop
+
+To develop all apps and packages, run the following command:
+
+```
+cd my-turborepo
+yarn run dev
+```
+
+### Remote Caching
+
+Turborepo can use a technique known as [Remote Caching (Beta)](https://turborepo.org/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+
+By default, Turborepo will cache locally. To enable Remote Caching (Beta) you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+
+```
+cd my-turborepo
+npx turbo login
+```
+
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your turborepo:
+
+```
+npx turbo link
+```
+
+## Useful Links
+
+Learn more about the power of Turborepo:
+
+- [Pipelines](https://turborepo.org/docs/core-concepts/pipelines)
+- [Caching](https://turborepo.org/docs/core-concepts/caching)
+- [Remote Caching (Beta)](https://turborepo.org/docs/core-concepts/remote-caching)
+- [Scoped Tasks](https://turborepo.org/docs/core-concepts/scopes)
+- [Configuration Options](https://turborepo.org/docs/reference/configuration)
+- [CLI Usage](https://turborepo.org/docs/reference/command-line-reference)
