@@ -18,6 +18,11 @@ const main = async () => {
   const dbPass = config.requireSecret("rds-password");
   const dbPublic = config.requireBoolean("rds-public") ?? false;
   const dbInstanceCount = config.requireNumber("rds-instanceCount") ?? 1;
+
+  // Question: This happened for multi-region availability.
+  // Is it stil needed since we didn't do this for the rest of everything?
+  // Does this cost extra money if we don't use it?
+  // Is this a pre-optimization?
   const dbMultiAZ = ["a", "b", "c"].map((value) => region + value);
 
   // A VPC is a virtual computer that holds all of your resources.
@@ -43,6 +48,12 @@ const main = async () => {
     tags,
   });
 
+  // Question: These went unused, do we still want them?
+  const publicSubnet = await vpc.getSubnets("public");
+  const isolatedSubnet = await vpc.getSubnets("isolated");
+
+  const privateSubnets = await vpc.getSubnets("private");
+
   // Network security (Security Groups)
   // HTTP/HTTPS network (public)
   const webSecurityGroup = new awsx.ec2.SecurityGroup(
@@ -53,10 +64,10 @@ const main = async () => {
     }
   );
 
-  const dbSecurityGroup = new aws.ec2.SecurityGroup(
-    "networking-security-group",
+  const dbSecurityGroup = new awsx.ec2.SecurityGroup(
+    "networking-security-group-database",
     {
-      vpcId: vpc.id,
+      vpc,
     }
   );
 
@@ -138,6 +149,136 @@ const main = async () => {
       })
     );
   }
+
+  const ecsCluster = new awsx.ecs.Cluster(`${project}-${stack}-ecs-cluster`, {
+    vpc,
+    tags,
+  });
+
+  const namespace = new aws.servicediscovery.PrivateDnsNamespace("namespace", {
+    vpc: vpc.id,
+  });
+
+  // Service Register for Web
+  const serviceRegistryWeb = new aws.servicediscovery.Service("service-web", {
+    dnsConfig: {
+      namespaceId: namespace.id,
+      dnsRecords: [
+        {
+          ttl: 10,
+          type: "SRV",
+        },
+      ],
+      routingPolicy: "WEIGHTED",
+    },
+    healthCheckCustomConfig: {
+      failureThreshold: 1,
+    },
+  });
+
+  const ecsWebTask = new awsx.ecs.FargateTaskDefinition("ecs-task-web", {
+    container: {
+      essential: true,
+      image:
+        "pvermeyden/nodejs-hello-world:a1e8cf1edcc04e6d905078aed9861807f6da0da4",
+
+      logConfiguration: {
+        logDriver: "awslogs",
+        options: {
+          "awslogs-region": region,
+          "awslogs-group": "web-service",
+          "awslogs-create-group": "true",
+          "awslogs-stream-prefix": "test",
+        },
+      },
+      portMappings: [
+        {
+          containerPort: 80,
+          hostPort: 80,
+        },
+      ],
+    },
+  });
+
+  const ecsWebService = new awsx.ecs.FargateService("ecs-service", {
+    cluster: ecsCluster,
+
+    // Task Config and Scale
+    desiredCount: 1,
+    taskDefinition: ecsWebTask,
+
+    // Service Discovery
+    serviceRegistries: {
+      port: 80,
+      registryArn: serviceRegistryWeb.arn,
+    },
+
+    // Firewall and Networking
+    securityGroups: [webSecurityGroup],
+    subnets: privateSubnets.map((subnet) =>
+      subnet.subnet.id.apply((t) => t as string)
+    ),
+    assignPublicIp: false,
+
+    deploymentCircuitBreaker: {
+      enable: true,
+      rollback: true,
+    },
+  });
+
+  const dbIngress = awsx.ec2.SecurityGroupRule.ingress(
+    "database-access-private",
+    dbSecurityGroup,
+    {
+      cidrBlocks: privateSubnets.map((subnet) =>
+        subnet.subnet.cidrBlock.apply((t) => t as string)
+      ),
+    },
+    new awsx.ec2.TcpPorts(5432)
+  );
+
+  const dbEgress = awsx.ec2.SecurityGroupRule.egress(
+    "database-access-private",
+    dbSecurityGroup,
+    {
+      cidrBlocks: privateSubnets.map((subnet) =>
+        subnet.subnet.cidrBlock.apply((t) => t as string)
+      ),
+    },
+    new awsx.ec2.TcpPorts(5432)
+  );
+
+  const vpcLink = new aws.apigatewayv2.VpcLink("api-vpcLink", {
+    subnetIds: privateSubnets.map((subnet) =>
+      subnet.id.apply((t) => t as string)
+    ),
+    securityGroupIds: [webSecurityGroup.id],
+  });
+
+  const apiGateway = new aws.apigatewayv2.Api("api", {
+    protocolType: "HTTP",
+    tags,
+  });
+
+  const cloudMapIntegration = new aws.apigatewayv2.Integration("integration", {
+    integrationType: "HTTP_PROXY",
+    integrationMethod: "ANY",
+    integrationUri: serviceRegistryWeb.arn,
+    connectionType: "VPC_LINK",
+    connectionId: vpcLink.id,
+    apiId: apiGateway.id,
+  });
+
+  const webProxyRoute = new aws.apigatewayv2.Route("api-route", {
+    apiId: apiGateway.id,
+    routeKey: "ANY /{proxy+}",
+    target: pulumi.interpolate`integrations/${cloudMapIntegration.id}`,
+  });
+
+  const webStageGateway = new aws.apigatewayv2.Stage("api-gateway-stage", {
+    apiId: apiGateway.id,
+    autoDeploy: true,
+  });
 };
 
 main();

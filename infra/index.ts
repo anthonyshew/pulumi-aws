@@ -93,16 +93,16 @@ const setup = async () => {
   const isolatedSubnet = await vpc.getSubnets("isolated");
 
   // RDS instances
-  const rdsInstance = new aws.rds.Instance("demo-instance", {
-    instanceClass: "db.t3.micro",
-    allocatedStorage: 20,
-    engine: "postgres",
-    username: "demo",
-    dbName: "test",
-    password: "demo123demo",
-    tags,
-    vpcSecurityGroupIds: [],
-  });
+  // const rdsInstance = new aws.rds.Instance("demo-instance", {
+  //   instanceClass: "db.t3.micro",
+  //   allocatedStorage: 20,
+  //   engine: "postgres",
+  //   username: "demo",
+  //   dbName: "test",
+  //   password: "demo123demo",
+  //   tags,
+  //   vpcSecurityGroupIds: [],
+  // });
 
   // Fargate related
   const ecsCluster = new awsx.ecs.Cluster("demo-ecs-cluster", {
@@ -130,6 +130,7 @@ const setup = async () => {
       failureThreshold: 1,
     },
   });
+
   const fargateServiceTask = new awsx.ecs.FargateTaskDefinition(
     "demo-hello-world",
     {
