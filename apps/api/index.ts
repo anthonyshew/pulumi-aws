@@ -6,7 +6,7 @@ const port = process.env.PORT ?? 5000;
 
 app.use(express.json());
 
-app.get("/test", (req, res) => {
+app.get("/", (req, res) => {
   console.log("/ on the api was hit. Great work!");
   return res.send(tryMe);
 });
@@ -44,5 +44,5 @@ app.post("*", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`[api-server]: Server running at on ${port}`);
+  console.log(`Server running at on ${port}`);
 });

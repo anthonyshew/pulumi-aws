@@ -1,6 +1,6 @@
-FROM node:14
+FROM node:16-alpine
 WORKDIR /usr/src/app
-COPY package*.json index.js ./
+COPY ./ ./
 RUN yarn install
 EXPOSE 80
 CMD ["node", "index.js"]
