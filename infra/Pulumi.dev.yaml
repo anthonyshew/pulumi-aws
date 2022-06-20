@@ -2,5 +2,5 @@ config:
   demo-project:rds-instance-count: "1"
   demo-project:rds-password:
     secure: AAABAG0e2+ekAEXJC3l3wr06XsaXbsclBwb1bi7/USknWuTNLvRkqjviLUi6NHN8PctKa/PjJfTDZvU=
-  demo-project:rds-public: false
+  demo-project:rds-public: "false"
   demo-project:region: us-east-1
