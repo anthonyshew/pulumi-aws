@@ -3,4 +3,4 @@ WORKDIR /usr/src/app
 COPY ./ ./
 RUN yarn install
 EXPOSE 80
-CMD ["node", "index.js"]
+CMD ["npx","ts-node", "index.js"]
