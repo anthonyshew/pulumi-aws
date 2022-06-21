@@ -5,7 +5,7 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "scripts": {
-    "dev": "prisma db push",
+    "dev": "prisma db push --accept-data-loss",
     "db-deploy": "prisma migrate deploy",
     "generate-schemas": "prisma generate",
     "db-studio": "prisma studio",

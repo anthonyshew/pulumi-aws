@@ -1,4 +1,11 @@
 import * as React from "react";
-export const Button: React.FC = () => {
-  return <button>Buttony Button</button>;
+
+export const Button = ({
+  onClick,
+  children,
+}: {
+  onClick?: any;
+  children?: React.ReactNode;
+}) => {
+  return <button onClick={onClick}>{children ?? "Buttony Button"}</button>;
 };

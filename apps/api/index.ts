@@ -1,10 +1,13 @@
 import express from "express";
+import cors from "cors";
+import { prisma } from "@project/prisma";
 import { tryMe } from "@project/constants";
 
 const app = express();
 const port = process.env.PORT ?? 5000;
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
   console.log("/ on the api was hit. Great work!");
@@ -16,31 +19,30 @@ app.get("/test-route", (req, res, next) => {
   return res.json({ message: "You've done it! Awesome!" });
 });
 
-// app.post("/write-new-user", async (req, res) => {
-//   console.log("/write-new-user was hit as a POST route. Nice!");
-//   console.log(req.body);
-//   try {
-//     const newUser = await prisma.user.create({
-//       data: {
-//         email: "test@test.com",
-//         name: req.body.name,
-//         password: "plaintextomg",
-//       },
-//     });
-//     return res.json(newUser);
-//   } catch (error) {
-//     console.log(error);
-//   }
-
-//   return res.json({ message: "Looks like something went wrong.", e });
-// });
+app.post("/write-new-user", async (req, res) => {
+  console.log("/write-new-user was hit as a POST route. Nice!");
+  console.log(req.body);
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        email: "test@test.com",
+        name: req.body.name,
+        password: "plaintextomg",
+      },
+    });
+    return res.json(newUser);
+  } catch (error) {
+    console.log(error);
+    return res.json({ message: "Looks like something went wrong.", error });
+  }
+});
 
 app.get("*", (req, res) => {
-  return res.send("404'ed for a GET request");
+  return res.json({ message: "404'ed for a GET request" });
 });
 
 app.post("*", (req, res) => {
-  return res.send("404'ed for a POST request");
+  return res.send({ message: "404'ed for a POST request" });
 });
 
 app.listen(port, () => {
