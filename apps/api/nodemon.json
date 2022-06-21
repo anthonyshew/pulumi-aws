@@ -1,3 +1,3 @@
 {
-  "watch": ["./**.ts", "../../packages/constants/**"]
+  "watch": ["./**.ts", "../../packages/**/*.ts"]
 }
