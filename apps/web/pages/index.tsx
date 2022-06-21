@@ -1,5 +1,5 @@
-import { Button } from "ui";
-// import { prisma, User } from "@project/prisma";
+import { Button } from "@project/ui";
+import { prisma, User } from "@project/prisma";
 import { tryMe } from "@project/constants";
 
 export default function Web({ users }: { users: User[] }) {
@@ -8,8 +8,8 @@ export default function Web({ users }: { users: User[] }) {
       <h1>Web</h1>
       <Button />
       <p>
-        This is a constant that comes from the "@project/constants" package:{" "}
-        {tryMe}
+        This is a constant that comes from the {"@project/constants"} package:
+        <span>{tryMe}</span>
       </p>
       <p>Here are all the users currently in your database.</p>
       <pre>{JSON.stringify(users, null, 2)}</pre>
