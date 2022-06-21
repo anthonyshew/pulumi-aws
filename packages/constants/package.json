@@ -5,7 +5,8 @@
   "types": "./index.ts",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint *.ts*"
+    "lint": "eslint *.ts*",
+    "clean": "rm -rf node_modules"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

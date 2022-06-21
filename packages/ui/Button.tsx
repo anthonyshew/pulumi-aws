@@ -1,4 +1,4 @@
 import * as React from "react";
-export const Button = () => {
-  return <button>fart</button>;
+export const Button: React.FC = () => {
+  return <button>Buttony Button</button>;
 };

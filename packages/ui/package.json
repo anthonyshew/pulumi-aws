@@ -1,11 +1,12 @@
 {
-  "name": "ui",
+  "name": "@project/ui",
   "version": "0.0.0",
   "main": "./index.tsx",
   "types": "./index.tsx",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint *.ts*"
+    "lint": "eslint *.ts*",
+    "clean": "rm -rf node_modules"
   },
   "devDependencies": {
     "@types/react": "^17.0.37",

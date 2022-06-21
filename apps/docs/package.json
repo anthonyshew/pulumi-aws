@@ -13,7 +13,8 @@
     "serve": "docusaurus serve --host 0.0.0.0",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "type-check": "tsc"
+    "type-check": "tsc",
+    "clean": "rm -rf node_modules && rm -rf .turbo && rm -rf .docusaurus && rm -rf build"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.21",

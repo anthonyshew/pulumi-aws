@@ -1,5 +1,5 @@
 import express from "express";
-import { tryMe } from "@proj/constants";
+import { tryMe } from "@project/constants";
 
 const app = express();
 const port = process.env.PORT ?? 5000;

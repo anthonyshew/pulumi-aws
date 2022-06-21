@@ -1,1 +1,1 @@
-export const tryMe = "no way";
+export const tryMe = "Thanks for using this template!";

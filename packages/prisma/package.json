@@ -2,12 +2,16 @@
   "name": "@project/prisma",
   "version": "0.0.0",
   "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
   "scripts": {
     "dev": "prisma db push",
     "db-deploy": "prisma migrate deploy",
     "generate-schemas": "prisma generate",
     "db-studio": "prisma studio",
-    "db-format": "prisma format"
+    "db-format": "prisma format",
+    "lint": "eslint *.ts*",
+    "clean": "rm -rf node_modules && .turbo"
   },
   "devDependencies": {
     "prisma": "3.9.2",
@@ -16,11 +20,8 @@
     "zod-prisma": "0.5.4"
   },
   "dependencies": {
-    "@prisma/client": "3.9.2",
-    "mongoose": "6.2.3"
+    "@prisma/client": "3.9.2"
   },
-  "main": "index.ts",
-  "types": "index.ts",
   "prisma": {
     "seed": "ts-node ./seed.ts"
   }
