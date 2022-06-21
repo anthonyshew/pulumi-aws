@@ -1,7 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
-import * as docker from "@pulumi/docker";
+import { buildAndPushImage } from "./utils/buildAndPushImage";
 
 const tags = {
   // Question: Should we make this go off of the stack?
@@ -48,10 +48,8 @@ const main = async () => {
     tags,
   });
 
-  // Question: These went unused, do we still want them?
   const publicSubnets = await vpc.getSubnets("public");
   const isolatedSubnets = await vpc.getSubnets("isolated");
-
   const privateSubnets = await vpc.getSubnets("private");
 
   // "Security groups" are used to control access to your network.
@@ -205,14 +203,18 @@ const main = async () => {
     `${project}-${stack}-image-registry`
   );
 
-  // Build the image from our source code and push it into the repository.
+  // Build the images from our source code and push it into the repository.
   // Now it will be available for use.
-  const apiImage = imageRepository.buildAndPushImage({
-    context: "../api",
+  const apiImage = buildAndPushImage(imageRepository, {
+    context: "../apps/api",
   });
 
-  const nextjsImage = imageRepository.buildAndPushImage({
-    context: "../nextjs",
+  const nextjsImage = buildAndPushImage(imageRepository, {
+    context: "../apps/web",
+  });
+
+  const documentationImage = buildAndPushImage(imageRepository, {
+    context: "../apps/docs",
   });
 
   // Create a Fargate task definition.
