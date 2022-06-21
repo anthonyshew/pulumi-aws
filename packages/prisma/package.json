@@ -11,7 +11,7 @@
     "db-studio": "prisma studio",
     "db-format": "prisma format",
     "lint": "eslint *.ts*",
-    "clean": "rm -rf node_modules && .turbo"
+    "clean": "rm -rf node_modules && rm -rf .turbo"
   },
   "devDependencies": {
     "prisma": "3.9.2",
