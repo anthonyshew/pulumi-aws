@@ -2,6 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 import { buildAndPushImage } from "./utils/buildAndPushImage";
+import * as config from "./utils/config";
 
 const tags = {
   // Question: Should we make this go off of the stack?
@@ -9,40 +10,30 @@ const tags = {
 };
 
 const main = async () => {
-  // Your project and stack info.
-  const project = pulumi.getProject();
-  const stack = pulumi.getStack();
-  const config = new pulumi.Config();
-  // Grab all of our config for this stack.
-  const environment = config.require("environment");
-  const region = config.require("region");
-  const dbPass = config.requireSecret("rds-password");
-  const dbPublic = config.requireBoolean("rds-public") ?? false;
-  const dbInstanceCount = config.requireNumber("rds-instance-count");
   // Question: Couldn't get these to work in us-east-1.
   // AWS automatically provisions to three availability zones by default.
   // If we leave it out of the cluster declaration, it "just works".
   // Why would we want to be explicit with this?
   // const dbMultiAZ = ["a", "b", "c"].map((value) => region + value);
   const tags = {
-    environment,
+    environment: config.environment,
   };
   // A VPC is a "virtual private cloud".
   // This is a cloud with the cloud for you to use as your own.
   // It has all of the characteristics of a cloud provider but now it is at your command.
-  const vpc = new awsx.ec2.Vpc(`${project}-${stack}-vpc`, {
+  const vpc = new awsx.ec2.Vpc(`${config.projectStack}-vpc`, {
     cidrBlock: "10.0.0.0/16",
     subnets: [
       {
-        name: `${project}-${stack}-subnet-public`,
+        name: `${config.projectStack}-subnet-public`,
         type: "public",
       },
       {
-        name: `${project}-${stack}-subnet-private`,
+        name: `${config.projectStack}-subnet-private`,
         type: "private",
       },
       {
-        name: ` ${project}-${stack}-subnet-isolated`,
+        name: ` ${config.projectStack}-subnet-isolated`,
         type: "isolated",
       },
     ],
@@ -56,7 +47,7 @@ const main = async () => {
 
   // "Security groups" are used to control access to your network.
   const webSecurityGroup = new awsx.ec2.SecurityGroup(
-    `${project}-${stack}-security-group-web`,
+    `${config.projectStack}-security-group-web`,
     {
       vpc,
       tags,
@@ -64,7 +55,7 @@ const main = async () => {
   );
 
   const apiSecurityGroup = new awsx.ec2.SecurityGroup(
-    `${project}-${stack}-security-group-api`,
+    `${config.projectStack}-security-group-api`,
     {
       vpc,
       tags,
@@ -74,7 +65,7 @@ const main = async () => {
   // TODO: It looks like this object takes ingress and egress properties.
   // Do we want to use those to clean up our code?
   const dbSecurityGroup = new awsx.ec2.SecurityGroup(
-    `${project}-${stack}-security-group-database`,
+    `${config.projectStack}-security-group-database`,
     {
       vpc,
       tags,
@@ -82,7 +73,7 @@ const main = async () => {
   );
 
   const pgAdminSecurityGroup = new awsx.ec2.SecurityGroup(
-    `${project}-${stack}-security-group-pgAdmin`,
+    `${config.projectStack}-security-group-pgAdmin`,
     {
       vpc,
       tags,
@@ -91,28 +82,28 @@ const main = async () => {
 
   // An "ingress" rule is used to allow traffic into your network.
   awsx.ec2.SecurityGroupRule.ingress(
-    `${project}-${stack}-http-access`,
+    `${config.projectStack}-http-access`,
     webSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
     new awsx.ec2.TcpPorts(80)
   );
 
   awsx.ec2.SecurityGroupRule.ingress(
-    `${project}-${stack}-https-access`,
+    `${config.projectStack}-https-access`,
     webSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
     new awsx.ec2.TcpPorts(443)
   );
 
   awsx.ec2.SecurityGroupRule.ingress(
-    `${project}-${stack}-api-http-access`,
+    `${config.projectStack}-api-http-access`,
     apiSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
     new awsx.ec2.TcpPorts(80)
   );
 
   awsx.ec2.SecurityGroupRule.ingress(
-    `${project}-${stack}-api-https-access`,
+    `${config.projectStack}-api-https-access`,
     apiSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
     new awsx.ec2.TcpPorts(443)
@@ -120,28 +111,28 @@ const main = async () => {
 
   // An "egress" rule is used to allow traffic out of your network.
   awsx.ec2.SecurityGroupRule.egress(
-    `${project}-${stack}-api-http-access`,
+    `${config.projectStack}-api-http-access`,
     apiSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
     new awsx.ec2.TcpPorts(80)
   );
 
   awsx.ec2.SecurityGroupRule.egress(
-    `${project}-${stack}-api-https-access`,
+    `${config.projectStack}-api-https-access`,
     apiSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
     new awsx.ec2.TcpPorts(443)
   );
 
   awsx.ec2.SecurityGroupRule.egress(
-    `${project}-${stack}-web-http-access`,
+    `${config.projectStack}-web-http-access`,
     webSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
     new awsx.ec2.TcpPorts(80)
   );
 
   awsx.ec2.SecurityGroupRule.egress(
-    `${project}-${stack}-web-https-access`,
+    `${config.projectStack}-web-https-access`,
     webSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
     // Question: Just want to confirm...ALL tcp ports?
@@ -152,9 +143,9 @@ const main = async () => {
   // Because we are using the isolated subnet here,
   // we know that no one can get to our database except us.
   const dbSubnetGroup = new aws.rds.SubnetGroup(
-    `${project}-${stack}-db-subnet-group`,
+    `${config.projectStack}-db-subnet-group`,
     {
-      name: `${project}-${stack}-db-subnet-group`,
+      name: `${config.projectStack}-db-subnet-group`,
       subnetIds: isolatedSubnets.map((subnet) => subnet.id),
       tags,
     }
@@ -162,7 +153,7 @@ const main = async () => {
 
   // Allowing port 5432 to communicate with private subnet
   awsx.ec2.SecurityGroupRule.ingress(
-    `${project}-${stack}-database-access-private`,
+    `${config.projectStack}-database-access-private`,
     dbSecurityGroup,
     {
       cidrBlocks: privateSubnets.map((subnet) =>
@@ -172,7 +163,7 @@ const main = async () => {
     new awsx.ec2.TcpPorts(5432)
   );
   awsx.ec2.SecurityGroupRule.egress(
-    `${project}-${stack}-database-access-private`,
+    `${config.projectStack}-database-access-private`,
     dbSecurityGroup,
     {
       cidrBlocks: privateSubnets.map((subnet) =>
@@ -185,13 +176,13 @@ const main = async () => {
   // A database cluster is the RDS way to utilize databasing safely.
   // The cluster will be using a primary database.
   // If it goes down, there will be secondaries for it to fall back to.
-  const dbCluster = new aws.rds.Cluster(`${project}-${stack}-db-cluster`, {
-    clusterIdentifier: `${project}-${stack}-db`,
+  const dbCluster = new aws.rds.Cluster(`${config.projectStack}-db-cluster`, {
+    clusterIdentifier: `${config.projectStack}-db`,
     tags,
     // Continued from question in the configs about if these are needed or not
     // availabilityZones: ["a", "b", "c"].map((value) => region + value),
 
-    // Question: Wanted to do `${project}-${stack} but there are naming restrictions.
+    // Question: Wanted to do `${config.projectStack} but there are naming restrictions.
     // Is this the name of the database in the cluster?
     // If so, we can probably hardcode this name?
     databaseName: `testing123`,
@@ -208,7 +199,7 @@ const main = async () => {
 
     // Creds Config
     masterUsername: "postgres",
-    masterPassword: dbPass,
+    masterPassword: config.dbPass,
     iamDatabaseAuthenticationEnabled: true,
     vpcSecurityGroupIds: [dbSecurityGroup.id],
     dbSubnetGroupName: dbSubnetGroup.id,
@@ -218,17 +209,22 @@ const main = async () => {
   // Scalability for your database instances
   let clusterInstances: aws.rds.ClusterInstance[] = [];
 
-  for (let i = 1; i <= dbInstanceCount; i++) {
+  for (let i = 1; i <= config.dbInstanceCount; i++) {
     clusterInstances.push(
-      new aws.rds.ClusterInstance(`${project}-${stack}-database-instance` + i, {
-        clusterIdentifier: dbCluster.id,
-        identifier: "instance" + "-" + i,
+      new aws.rds.ClusterInstance(
+        `${config.projectStack}-database-instance` + i,
+        {
+          clusterIdentifier: dbCluster.id,
+          identifier: "instance" + "-" + i,
 
-        instanceClass: "db.serverless",
-        engine: dbCluster.engine.apply((value) => value as aws.rds.EngineType),
-        engineVersion: dbCluster.engineVersion,
-        publiclyAccessible: dbPublic,
-      })
+          instanceClass: "db.serverless",
+          engine: dbCluster.engine.apply(
+            (value) => value as aws.rds.EngineType
+          ),
+          engineVersion: dbCluster.engineVersion,
+          publiclyAccessible: config.dbPublic,
+        }
+      )
     );
   }
 
@@ -236,16 +232,19 @@ const main = async () => {
   // ECS means "Elastic Container Service"
   // It is a way to run containers on AWS.
   // AWS says ECS is "highly secure, reliable, and scalable."
-  const ecsCluster = new awsx.ecs.Cluster(`${project}-${stack}-ecs-cluster`, {
-    vpc,
-    tags,
-  });
+  const ecsCluster = new awsx.ecs.Cluster(
+    `${config.projectStack}-ecs-cluster`,
+    {
+      vpc,
+      tags,
+    }
+  );
 
   // In our VPC, we need to be able to establish DNS for our services.
   // This is so that our cloud knows where to find stuff.
   // With this namespace, we can create DNS records that our cloud can do this with.
   const namespace = new aws.servicediscovery.PrivateDnsNamespace(
-    `${project}-${stack}-namespace`,
+    `${config.projectStack}-namespace`,
     {
       vpc: vpc.id,
       tags,
@@ -254,7 +253,7 @@ const main = async () => {
 
   // Registering our web service to our namespace.
   const serviceRegistryWeb = new aws.servicediscovery.Service(
-    `${project}-${stack}-service-web`,
+    `${config.projectStack}-service-web`,
     {
       tags,
       dnsConfig: {
@@ -274,7 +273,7 @@ const main = async () => {
   );
 
   const serviceRegistryApi = new aws.servicediscovery.Service(
-    `${project}-${stack}service-web`,
+    `${config.projectStack}service-web`,
     {
       tags,
       dnsConfig: {
@@ -294,7 +293,7 @@ const main = async () => {
   );
 
   const serviceRegistryPgAdmin = new aws.servicediscovery.Service(
-    `${project}-${stack}-pgAdmin-service`,
+    `${config.projectStack}-pgAdmin-service`,
     {
       dnsConfig: {
         namespaceId: namespace.id,
@@ -315,7 +314,7 @@ const main = async () => {
   // Here, we create a repository as a place where we can store Docker images.
   // When we want to use an image later in Fargate, we can use these images for our apps.
   const imageRepository = new awsx.ecr.Repository(
-    `${project}-${stack}-image-registry`
+    `${config.projectStack}-image-registry`
   );
 
   // Build the images from our source code and push it into the repository.
@@ -355,7 +354,7 @@ const main = async () => {
   // You can define many tasks within one Fargate instance.
   // That way, you can be running several applications that can talk to each other.
   const ecsApiTask = new awsx.ecs.FargateTaskDefinition(
-    `${project}-${stack}-api-task`,
+    `${config.projectStack}-api-task`,
     {
       tags,
       container: {
@@ -364,7 +363,7 @@ const main = async () => {
         logConfiguration: {
           logDriver: "awslogs",
           options: {
-            "awslogs-region": region,
+            "awslogs-region": config.region,
             "awslogs-group": "api-service",
             "awslogs-create-group": "true",
             "awslogs-stream-prefix": "test",
@@ -381,7 +380,7 @@ const main = async () => {
   );
 
   const ecsWebTask = new awsx.ecs.FargateTaskDefinition(
-    `${project}-${stack}-web-task`,
+    `${config.projectStack}-web-task`,
     {
       container: {
         essential: true,
@@ -389,7 +388,7 @@ const main = async () => {
         logConfiguration: {
           logDriver: "awslogs",
           options: {
-            "awslogs-region": region,
+            "awslogs-region": config.region,
             "awslogs-group": "web-service",
             "awslogs-create-group": "true",
             "awslogs-stream-prefix": "test",
@@ -406,7 +405,7 @@ const main = async () => {
   );
 
   const ecsPgAdminTask = new awsx.ecs.FargateTaskDefinition(
-    `${project}-${stack}-ecs-pgAdmin-task`,
+    `${config.projectStack}-ecs-pgAdmin-task`,
     {
       container: {
         essential: true,
@@ -415,8 +414,8 @@ const main = async () => {
         logConfiguration: {
           logDriver: "awslogs",
           options: {
-            "awslogs-region": region,
-            "awslogs-group": "web-service",
+            "awslogs-region": config.region,
+            "awslogs-group": "pgAdmin-service",
             "awslogs-create-group": "true",
             "awslogs-stream-prefix": "test",
           },
@@ -429,7 +428,7 @@ const main = async () => {
           },
           {
             name: "PGADMIN_DEFAULT_PASSWORD",
-            value: dbPass,
+            value: config.dbPass,
           },
           {
             name: "PGADMIN_LISTEN_PORT",
@@ -449,7 +448,7 @@ const main = async () => {
   );
 
   const ecsApiService = new awsx.ecs.FargateService(
-    `${project}-${stack}-ecs-api-service`,
+    `${config.projectStack}-ecs-api-service`,
     {
       cluster: ecsCluster,
 
@@ -478,7 +477,7 @@ const main = async () => {
   );
 
   const ecsWebService = new awsx.ecs.FargateService(
-    `${project}-${stack}-ecs-web-service`,
+    `${config.projectStack}-ecs-web-service`,
     {
       cluster: ecsCluster,
 
@@ -507,7 +506,7 @@ const main = async () => {
   );
 
   const ecsPgAdminService = new awsx.ecs.FargateService(
-    `${project}-${stack}-ecs-pgAdmin-service`,
+    `${config.projectStack}-ecs-pgAdmin-service`,
     {
       cluster: ecsCluster,
       desiredCount: 1,
@@ -531,21 +530,24 @@ const main = async () => {
   // Let's get our apps opened up to the world.
   // API Gateway is the world's portal into your private subnet.
   // It also handles the security groupings so that we only expose what we want to.
-  const vpcLink = new aws.apigatewayv2.VpcLink(`${project}-${stack}-vpc-link`, {
-    tags,
-    subnetIds: privateSubnets.map((subnet) =>
-      subnet.id.apply((t) => t as string)
-    ),
-    securityGroupIds: [webSecurityGroup.id],
-  });
+  const vpcLink = new aws.apigatewayv2.VpcLink(
+    `${config.projectStack}-vpc-link`,
+    {
+      tags,
+      subnetIds: privateSubnets.map((subnet) =>
+        subnet.id.apply((t) => t as string)
+      ),
+      securityGroupIds: [webSecurityGroup.id],
+    }
+  );
 
-  const apiGateway = new aws.apigatewayv2.Api(`${project}-${stack}-api`, {
+  const apiGateway = new aws.apigatewayv2.Api(`${config.projectStack}-api`, {
     protocolType: "HTTP",
     tags,
   });
 
   const cloudMapIntegration = new aws.apigatewayv2.Integration(
-    `${project}-${stack}-integration`,
+    `${config.projectStack}-integration`,
     {
       integrationType: "HTTP_PROXY",
       integrationMethod: "ANY",
@@ -557,7 +559,7 @@ const main = async () => {
   );
 
   const webProxyRoute = new aws.apigatewayv2.Route(
-    `${project}-${stack}-api-route`,
+    `${config.projectStack}-api-route`,
     {
       apiId: apiGateway.id,
       routeKey: "ANY /{proxy+}",
@@ -566,7 +568,7 @@ const main = async () => {
   );
 
   const webStageGateway = new aws.apigatewayv2.Stage(
-    `${project}-${stack}-api-gateway-stage`,
+    `${config.projectStack}-api-gateway-stage`,
     {
       tags,
       apiId: apiGateway.id,
