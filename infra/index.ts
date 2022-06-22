@@ -273,7 +273,7 @@ const main = async () => {
   );
 
   const serviceRegistryApi = new aws.servicediscovery.Service(
-    `${config.projectStack}service-web`,
+    `${config.projectStack}-service-web`,
     {
       tags,
       dnsConfig: {
