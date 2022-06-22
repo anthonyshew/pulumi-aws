@@ -6,6 +6,7 @@
 const withTM = require("next-transpile-modules")([
   "@project/ui",
   "@project/prisma",
+  "@project/logger",
 ]);
 const { withSentryConfig } = require("@sentry/nextjs");
 

@@ -7,8 +7,12 @@ services:
       - 5432:5432
     image: postgres:alpine
     environment:
-      - POSTGRES_USER=postgresUser
-      - POSTGRES_PASSWORD=postgresPassword
-      - POSTGRES_DB=prisma
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=dev
+      - POSTGRES_DB=dev
+    restart: always
     volumes:
-      - ./volumes/postgres:/var/lib/postgresql/data
+      - database:/var/lib/postgresql/data
+volumes:
+  database:
+    driver: local
