@@ -1,0 +1,16 @@
+# Web Container
+
+Location: /docker/Dockerfile.web
+
+This container features a Nextjs server.
+
+## Gotchas
+
+- To pre-render pages, this container needs to be able to connect to a a database.
+  - This means that the container needs to be supplied with a environment variable for `DATABASE_URL`.
+  - Additionally, that database must be updated with the migration that you intend to be running the application against.
+
+TODO:
+
+- It would be really great if this thing had a read-only database to work against.
+- That would keep our production database safer as we migrate against it.

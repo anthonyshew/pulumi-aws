@@ -1,0 +1,16 @@
+# Prisma Migrate
+
+Location: /docker/Dockerfile.prisma
+
+This is a container for performing a migration against the database.
+It needs to be ran before any Nextjs builds occur against the database.
+
+## Gotchas
+
+- The database needs to get connected up for Prisma to be able to generate its types.
+  - This means that the container needs to be supplied with a environment variable for `DATABASE_URL`.
+
+TODO:
+
+- It would be really great if this thing had a read-only database to work against.
+- That would keep our production database safer as we migrate against it.

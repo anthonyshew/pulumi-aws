@@ -1,0 +1,16 @@
+# API Container
+
+Location: /docker/Dockerfile.api
+
+This container has an Express api in it.
+Boring, normal HTTP REST stuff. :)
+
+## Gotchas
+
+- The database needs to get connected up for Prisma to be able to generate its types.
+  - This means that the container needs to be supplied with a environment variable for `DATABASE_URL`.
+
+TODO:
+
+- It would be really great if this thing had a read-only database to work against.
+- That would keep our production database safer as we migrate against it.

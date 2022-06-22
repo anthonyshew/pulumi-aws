@@ -205,17 +205,34 @@ const main = async () => {
 
   // Build the images from our source code and push it into the repository.
   // Now it will be available for use.
+  const prismaMigrationImage = buildAndPushImage(imageRepository, {
+    context: "..",
+    dockerfile: "./docker/Dockerfile.docs",
+  });
+
   const apiImage = buildAndPushImage(imageRepository, {
-    context: "../apps/api",
+    context: "..",
+    dockerfile: "./docker/Dockerfile.api",
+    // TODO: We need to supply the database URL here.
+    env: {
+      DATABASE_URL: "",
+    },
   });
 
   const nextjsImage = buildAndPushImage(imageRepository, {
-    context: "../apps/web",
+    context: "..",
+    dockerfile: "./docker/Dockerfile.web",
+    // TODO: We need to supply the database URL here.
+    env: {
+      DATABASE_URL: "",
+    },
   });
 
-  const documentationImage = buildAndPushImage(imageRepository, {
-    context: "../apps/docs",
-  });
+  // Question: Do we want to actually put up our docs or are we happy to have them just be a part of the dev environment?
+  // const documentationImage = buildAndPushImage(imageRepository, {
+  //   context: "..",
+  //   dockerfile: "./docker/Dockerfile."
+  // });
 
   // Create a Fargate task definition.
   // Fargate has "tasks."
