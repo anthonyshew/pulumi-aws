@@ -4,20 +4,17 @@ import * as awsx from "@pulumi/awsx";
 import { buildAndPushImage } from "./utils/buildAndPushImage";
 import * as config from "./utils/config";
 
-const tags = {
-  // Question: Should we make this go off of the stack?
-  ENVIRONMENT: process.env.ENV || "dev",
-};
-
 const main = async () => {
   // Question: Couldn't get these to work in us-east-1.
   // AWS automatically provisions to three availability zones by default.
   // If we leave it out of the cluster declaration, it "just works".
   // Why would we want to be explicit with this?
   // const dbMultiAZ = ["a", "b", "c"].map((value) => region + value);
+
   const tags = {
-    environment: config.environment,
+    environment: config.environment ?? "dev",
   };
+
   // A VPC is a "virtual private cloud".
   // This is a cloud with the cloud for you to use as your own.
   // It has all of the characteristics of a cloud provider but now it is at your command.
@@ -273,7 +270,7 @@ const main = async () => {
   );
 
   const serviceRegistryApi = new aws.servicediscovery.Service(
-    `${config.projectStack}-service-web`,
+    `${config.projectStack}-service-api`,
     {
       tags,
       dnsConfig: {
@@ -320,24 +317,28 @@ const main = async () => {
   // Build the images from our source code and push it into the repository.
   // Now it will be available for use.
   const prismaMigrationImage = buildAndPushImage(imageRepository, {
-    context: "..",
-    dockerfile: "./docker/Dockerfile.docs",
+    context: "../",
+    dockerfile: "../docker/Dockerfile.prisma",
+    // TODO: Is there a better way to pass the database URL to these containers?
+    args: {
+      DATABASE_URL: "",
+    },
   });
 
   const apiImage = buildAndPushImage(imageRepository, {
-    context: "..",
-    dockerfile: "./docker/Dockerfile.api",
-    // TODO: We need to supply the database URL here.
-    env: {
+    context: "../",
+    dockerfile: "../docker/Dockerfile.api",
+    // TODO: Is there a better way to pass the database URL to these containers?
+    args: {
       DATABASE_URL: "",
     },
   });
 
   const nextjsImage = buildAndPushImage(imageRepository, {
-    context: "..",
-    dockerfile: "./docker/Dockerfile.web",
-    // TODO: We need to supply the database URL here.
-    env: {
+    context: "../",
+    dockerfile: "../docker/Dockerfile.web",
+    // TODO: Is there a better way to pass the database URL to these containers?
+    args: {
       DATABASE_URL: "",
     },
   });
@@ -345,7 +346,7 @@ const main = async () => {
   // Question: Do we want to actually put up our docs or are we happy to have them just be a part of the dev environment?
   // const documentationImage = buildAndPushImage(imageRepository, {
   //   context: "..",
-  //   dockerfile: "./docker/Dockerfile."
+  //   dockerfile: "./docker/Dockerfile.docs"
   // });
 
   // Create a Fargate task definition.

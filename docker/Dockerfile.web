@@ -20,6 +20,9 @@ WORKDIR /app
 COPY --from=installer /app/ .
 COPY --from=builder /app/out/full/ .
 
+ARG DATABASE_URL
+ENV DATABASE_URL ${DATABASE_URL}
+
 RUN npx prisma generate --schema=./packages/prisma/schema.prisma
 
 # TODO: Once there are unit tests, lets get them enabled here.

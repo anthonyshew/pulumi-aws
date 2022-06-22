@@ -1,5 +1,5 @@
-encryptionsalt: v1:h8IWQJH3dJU=:v1:4xPqMhneB8Za/BOO:XlT0zYPtUGlXzToYSO3tybDXmkbB3w==
 config:
+  demo-project:environment: dev
   demo-project:rds-instance-count: "1"
   demo-project:rds-password:
     secure: AAABAG0e2+ekAEXJC3l3wr06XsaXbsclBwb1bi7/USknWuTNLvRkqjviLUi6NHN8PctKa/PjJfTDZvU=
