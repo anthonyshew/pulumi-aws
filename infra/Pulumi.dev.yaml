@@ -1,3 +1,4 @@
+encryptionsalt: v1:h8IWQJH3dJU=:v1:4xPqMhneB8Za/BOO:XlT0zYPtUGlXzToYSO3tybDXmkbB3w==
 config:
   demo-project:rds-instance-count: "1"
   demo-project:rds-password:

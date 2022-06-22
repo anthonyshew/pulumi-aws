@@ -2,18 +2,13 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 
-const tags = {
-  // Question: Should we make this go off of the stack?
-  ENVIRONMENT: process.env.ENV || "dev",
-};
-
 const main = async () => {
   // Your project and stack info.
   const project = pulumi.getProject();
   const stack = pulumi.getStack();
   const config = new pulumi.Config();
-
   // Grab all of our config for this stack.
+  const environment = config.require("environment");
   const region = config.require("region");
   const dbPass = config.requireSecret("rds-password");
   const dbPublic = config.requireBoolean("rds-public") ?? false;
@@ -23,7 +18,9 @@ const main = async () => {
   // If we leave it out of the cluster declaration, it "just works".
   // Why would we want to be explicit with this?
   // const dbMultiAZ = ["a", "b", "c"].map((value) => region + value);
-
+  const tags = {
+    environment,
+  };
   // A VPC is a "virtual private cloud".
   // This is a cloud with the cloud for you to use as your own.
   // It has all of the characteristics of a cloud provider but now it is at your command.
@@ -141,7 +138,8 @@ const main = async () => {
     `${project}-${stack}-web-https-access`,
     webSecurityGroup,
     new awsx.ec2.AnyIPv4Location(),
-    new awsx.ec2.TcpPorts(443)
+    // Question: Just want to confirm...ALL tcp ports?
+    new awsx.ec2.AllTcpPorts()
   );
 
   // Here, we have the subnet grouping for locking down access to our database.
@@ -208,7 +206,7 @@ const main = async () => {
     iamDatabaseAuthenticationEnabled: true,
     vpcSecurityGroupIds: [dbSecurityGroup.id],
     dbSubnetGroupName: dbSubnetGroup.id,
-    skipFinalSnapshot: true,
+    skipFinalSnapshot: false,
   });
 
   // Scalability for your database instances
