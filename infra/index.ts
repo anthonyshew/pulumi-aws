@@ -1,7 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
-import * as docker from "@pulumi/docker";
 
 const tags = {
   // Question: Should we make this go off of the stack?
@@ -111,6 +110,28 @@ const main = async () => {
       subnetIds: isolatedSubnets.map((subnet) => subnet.id),
       tags,
     }
+  );
+
+  // Allowing port 5432 comms with Private subnet
+  awsx.ec2.SecurityGroupRule.ingress(
+    "database-access-private",
+    dbSecurityGroup,
+    {
+      cidrBlocks: privateSubnets.map((subnet) =>
+        subnet.subnet.cidrBlock.apply((t) => t as string)
+      ),
+    },
+    new awsx.ec2.TcpPorts(5432)
+  );
+  awsx.ec2.SecurityGroupRule.egress(
+    "database-access-private",
+    dbSecurityGroup,
+    {
+      cidrBlocks: privateSubnets.map((subnet) =>
+        subnet.subnet.cidrBlock.apply((t) => t as string)
+      ),
+    },
+    new awsx.ec2.TcpPorts(5432)
   );
 
   // A database cluster is the RDS way to utilize databasing safely.
