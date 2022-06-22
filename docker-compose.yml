@@ -7,6 +7,8 @@ services:
       - 5432:5432
     image: postgres:alpine
     environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=database
+      - POSTGRES_USER=postgresUser
+      - POSTGRES_PASSWORD=postgresPassword
+      - POSTGRES_DB=prisma
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
