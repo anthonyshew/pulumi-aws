@@ -1,0 +1,7 @@
+encryptionsalt: v1:TZPKk7JSyk0=:v1:dz04LgrVqAzjycTY:ZzEgZlX6BwtKVDJISaohtV8NLEYsTw==
+config:
+  demo-project:environment: uat
+  demo-project:rds-instance-count: "1"
+  demo-project:rds-password: mastermaster
+  demo-project:rds-public: "false"
+  demo-project:region: eu-central-1
