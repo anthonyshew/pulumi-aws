@@ -5,14 +5,12 @@
   "types": "./index.tsx",
   "license": "MIT",
   "scripts": {
-    "test": "vitest --watch=false",
-    "test:watch": "vitest --watch --coverage",
-    "test:ci": "vitest --coverage",
-    "coverage": "vitest run --coverage",
     "lint": "eslint *.ts*",
     "clean": "rm -rf node_modules",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "test": "vitest --coverage",
+    "test:ci": "vitest --watch=false --coverage"
   },
   "devDependencies": {
     "@babel/core": "^7.18.5",

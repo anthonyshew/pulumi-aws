@@ -13,6 +13,9 @@
     "test": {
       "outputs": []
     },
+    "test:ci": {
+      "outputs": []
+    },
     "dev": {
       "cache": false
     }

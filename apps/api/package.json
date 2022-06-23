@@ -9,7 +9,8 @@
     "dev": "nodemon index.ts",
     "lint": "eslint *.ts*",
     "clean": "rm -rf node_modules && rm -rf .turbo",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "vitest --coverage",
+    "test:ci": "vitest --watch=false --coverage"
   },
   "author": "",
   "license": "ISC",
@@ -26,6 +27,7 @@
     "@types/node": "^18.0.0",
     "nodemon": "^2.0.16",
     "ts-node": "^10.8.1",
-    "tsup": "^6.1.2"
+    "tsup": "^6.1.2",
+    "vitest": "^0.15.2"
   }
 }

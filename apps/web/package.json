@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "jest --watch --coverage",
     "test:ci": "jest --ci",
     "lint": "next lint",
     "clean": "rm -rf .next && rm -rf .turbo && rm -rf node_modules"
