@@ -92,7 +92,7 @@ export const createNextjsService = ({
 
   const nextjsImage = repository.buildAndPushImage({
     context: "../",
-    dockerfile: "../docker/Dockerfile.web",
+    dockerfile: "../docker/Dockerfile.nextjs",
     // TODO: Is there a better way to pass the database URL to these containers?
     args: {
       DATABASE_URL: "",

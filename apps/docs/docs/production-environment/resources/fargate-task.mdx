@@ -1,0 +1,21 @@
+---
+sidebar_position: 4
+---
+
+# Fargate Task
+
+A set of instructions from your mom on how she wants you to sweep the floors.
+
+## What is a Fargate task?
+
+A Fargate task describes to Fargate what it should do with a container that you've built.
+
+How many isntances of that container should be running at once?
+What should Fargate do if a container fails?
+What should Fargate do when a container succeds?
+Should this task be considered critical to the set of Fargate services that are currently running?
+
+## Why?
+
+- You have a Docker container that can run your application. But that doesn't mean that Fargate knows what it should do with it.
+- With a task definition, now Fargate knows how to handle your container.
