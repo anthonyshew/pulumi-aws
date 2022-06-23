@@ -11,8 +11,8 @@ services:
       - POSTGRES_PASSWORD=dev
       - POSTGRES_DB=dev
     restart: always
-    volumes:
-      - database:/var/lib/postgresql/data
-volumes:
-  database:
-    driver: local
+#     volumes:
+#       - database:/var/lib/postgresql/data
+# volumes:
+#   database:
+#     driver: local
