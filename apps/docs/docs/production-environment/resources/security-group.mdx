@@ -1,0 +1,29 @@
+---
+sidebar_position: 3
+---
+
+# Security Group
+
+This is the bouncer at the bar not letting you in if you ain't on the list.
+
+## What are security groups?
+
+Security groups in AWS are firewalls.
+
+Security groups are specifically assigned to instances of resources. Therefore, any ingress and egress traffic will be firewalled for the resources. You can think of this as one final check on whether this traffic is allowed into or out of this specific resource.
+
+## Why?
+
+- At the resource level, you only want to let through those that you do indeed want to let through. This firewall won't let anyone through by default. You'll need to build a set of inbound and outbound rules to let people through. These rules will be assigned to ports on the resource.
+
+### Ingress
+
+An ingress lets traffic _into_ your resource.
+You will need to establish which ports on the resource are available to communicate with whoever is on the other side of the firewall.
+
+### Egress
+
+An egress lets traffic _out of_ your resource.
+You will need to establish which ports are available to communicate with whoever is on the other side of the firewall.
+
+Note: By default, AWS lets all traffic egress. The reason for this is that dangerous traffic is created by other people. Your information is outbound - so you probably aren't infecting yourself with outbound traffic.

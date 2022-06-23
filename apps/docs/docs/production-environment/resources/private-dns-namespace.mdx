@@ -1,0 +1,21 @@
+---
+sidebar_position: 2
+---
+
+# DNS Namespaces
+
+"Where should I look this up?"
+
+## What are DNS namespaces?
+
+DNS is a lot look a phone book. It tells you a number to dial and who should be picking up on the other end of the line.
+
+Namespaces create small bubbles of communication.
+
+Put it together: A DNS namespace is a privatized set of "phone numbers." Only the applications that you assign to that namespace will have access to that namespace.
+
+## Why use DNS namespaces?
+
+- You can separate resources within your VPC using this technique. Your applications and other resources will specifically be located where they need to be within the small bubbles that you have created.
+- This creates a tighter security layer within your VPC.
+- Applications within the namespace can communicate with each other using the dns-namespace. Applications outside the DNS-Namespace are not aware of it, and can not communicate with those who are in the DNS-namespace. The namespace is only made for _internal_ applications (with exceptions for where you choose to expose resources).
