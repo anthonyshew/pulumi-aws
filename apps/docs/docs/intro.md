@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Welcome to Arshewbys
 
-This project is dedicated to creating a monorepo that we can reduce, re-use, and recycle for our projects.
+This project is dedicated to creating a monorepo that we can reduce, reuse, and recycle for our projects.
 
 ## Created by
 

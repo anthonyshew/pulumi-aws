@@ -14,8 +14,8 @@
     "test": "turbo run test",
     "test:ci": "turbo run test:ci",
     "lint": "turbo run lint",
-    "clean": "turbo run clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "clean": "turbo run clean && echo Removing top-level node_modules && rm -rf node_modules && echo All clean!"
   },
   "devDependencies": {
     "prettier": "2.7.1",

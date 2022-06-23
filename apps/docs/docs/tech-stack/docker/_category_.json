@@ -1,6 +1,6 @@
 {
   "label": "Docker Containers",
-  "position": 1,
+  "position": 2,
   "link": {
     "type": "generated-index",
     "description": "What containers do we have at our disposal?"

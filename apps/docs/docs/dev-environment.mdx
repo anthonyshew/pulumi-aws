@@ -1,0 +1,26 @@
+---
+sidebar_position: 2
+title: Development Environment
+---
+
+# Build and ship - no matter what
+
+Your new dev environment features many easy to use scripts for your convenience:
+
+`yarn dx`: This is the big one to start up your development environment. You will Turborepo turn on all of your apps as well as whatever Docker containers are needed for backing services.
+
+`yarn build`: This command builds your applications for production.
+
+`yarn dev`: This command runs all of the `dev` commands in your `apps` and `packages`.
+
+`yarn docker:up`: This command runs all of your Docker containers found in `docker-compose.yml`.
+
+`yarn test`: Start your tests in watch mode.
+
+`yarn test:ci`: Run through your unit tests once. Mostly for CI but you can also do it, too.
+
+`yarn lint`: Lint your entire project.
+
+`yarn format`: Use prettier to format your project.
+
+`yarn clean`: Remove installed packages to start off fresh.
