@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
+    "dev": "turbo run dev",
     "docker:up": "docker-compose -f docker-compose.yml up --build -d",
     "lint": "turbo run lint",
     "clean": "turbo run clean",
