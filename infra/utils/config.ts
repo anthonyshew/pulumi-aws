@@ -11,3 +11,7 @@ export const region = config.require("region");
 export const dbPass = config.requireSecret("rds-password");
 export const dbPublic = config.requireBoolean("rds-public") ?? false;
 export const dbInstanceCount = config.requireNumber("rds-instance-count");
+
+export const tags = {
+  environment: environment ?? "dev",
+};
