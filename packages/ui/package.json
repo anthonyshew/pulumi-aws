@@ -5,6 +5,9 @@
   "types": "./index.tsx",
   "license": "MIT",
   "scripts": {
+    "test": "vitest",
+    "test:w": "vitest --watch --coverage",
+    "coverage": "vitest run --coverage",
     "lint": "eslint *.ts*",
     "clean": "rm -rf node_modules",
     "storybook": "start-storybook -p 6006",
@@ -20,14 +23,20 @@
     "@storybook/builder-vite": "^0.1.36",
     "@storybook/react": "^6.5.9",
     "@storybook/testing-library": "^0.0.13",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^12.1.5",
+    "@testing-library/react-hooks": "^8.0.0",
+    "@testing-library/user-event": "^13.5.0",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.2",
     "babel-loader": "^8.2.5",
     "eslint": "^7.32.0",
     "eslint-config-custom": "*",
+    "jsdom": "^20.0.0",
     "react": "^17.0.2",
     "tsconfig": "*",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "vitest": "^0.15.2"
   },
   "dependencies": {
     "@mantine/core": "^4.2.10",
